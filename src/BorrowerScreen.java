@@ -46,6 +46,8 @@ public class BorrowerScreen {
 
                 if(option == 1){
                     signIn();
+                    vTable.displayBorrowerTable();
+                    console.readLine("Press Enter to Continue");
                 }
 
                 else if(option == 2){

@@ -1,23 +1,41 @@
 import java.sql.ResultSet;
+import java.util.HashMap;
 
 public class VehicleTable {
     private SQLInterface dbConnector;
+    private String vehicleTableName;
+    private HashMap<Integer, String> vehicleTableColumns;
 
     public VehicleTable(){
         dbConnector = new SQLInterface();
+
+        vehicleTableName = "vehicle_details";
+        vehicleTableColumns = new HashMap<Integer, String>();
+
+        vehicleTableColumns.put(1, "v_id");
+        vehicleTableColumns.put(2, "v_name");
+        vehicleTableColumns.put(3, "v_numberplate");
+        vehicleTableColumns.put(4, "v_type");
+        vehicleTableColumns.put(5, "v_rent");
+        vehicleTableColumns.put(6, "v_total_distance");
+        vehicleTableColumns.put(7, "v_security_deposit");
+        vehicleTableColumns.put(8, "v_service_state");
+        vehicleTableColumns.put(9, "v_borrower_id");
+        vehicleTableColumns.put(10, "v_rented_date");
+        vehicleTableColumns.put(11, "v_return_date");
     }
 
     public void displayAdminTable(){
 
         clearScreen();
 
-        ResultSet result = dbConnector.excecuteSelect("*", "vehicle_details", null, null, null, null);
-        System.out.println("Displaying Table");
-
-
+        
+        
         try {
-
             // TODO: Implement Table Design
+
+            ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, null, null, null, null);
+            System.out.println("Displaying Table");
             
             while(result != null && result.next()){
                 for (int i = 1; i <= 11; i++) {
@@ -25,12 +43,43 @@ public class VehicleTable {
                 }
                 System.out.println();
             }
-
-
+            
+            
         } catch (Exception e) {
             System.out.println("Class: VehicleTable Method: displayAdminTable");
         }
-
+        
+        
+    }
+    
+    public void displayBorrowerTable(){
+        clearScreen();
+        
+        try {
+            
+            String columnNames = "";
+            
+            for (int i = 1; i < 6; i++) {
+                columnNames += vehicleTableColumns.get(i)+",";
+            }
+            
+            columnNames += vehicleTableColumns.get(7);
+            
+            String whereCondition = "v_service_state = true AND v_rented_date is null";
+            
+            ResultSet result = dbConnector.excecuteSelect(columnNames, vehicleTableName, whereCondition, null, null, null);
+            
+            while(result != null && result.next()){
+                for (int i = 1; i <= 6; i++) {
+                    System.out.print(result.getString(i)+" ");
+                }
+                System.out.println();
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Class: VehicleTable Method: displayBorrowerTable");
+            
+        }
 
     }
 

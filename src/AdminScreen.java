@@ -12,7 +12,7 @@ public class AdminScreen {
     private VehicleTable vTable = null;
     private Console console = System.console();
 
-    private HashMap<Integer, String> adminColumnNames;
+    private HashMap<Integer, String> vehicleTableColumns;
     private String vehicleTableName;
     private String adminTableName;
 
@@ -23,19 +23,19 @@ public class AdminScreen {
         vehicleTableName = "vehicle_details";
         adminTableName = "admin_accounts";
 
-        adminColumnNames = new HashMap<Integer, String>();
+        vehicleTableColumns = new HashMap<Integer, String>();
 
-        adminColumnNames.put(1, "v_id");
-        adminColumnNames.put(2, "v_name");
-        adminColumnNames.put(3, "v_numberplate");
-        adminColumnNames.put(4, "v_type");
-        adminColumnNames.put(5, "v_rent");
-        adminColumnNames.put(6, "v_total_distance");
-        adminColumnNames.put(7, "v_security_deposit");
-        adminColumnNames.put(8, "v_service_state");
-        adminColumnNames.put(9, "v_borrower_id");
-        adminColumnNames.put(10, "v_rented_date");
-        adminColumnNames.put(11, "v_return_date");
+        vehicleTableColumns.put(1, "v_id");
+        vehicleTableColumns.put(2, "v_name");
+        vehicleTableColumns.put(3, "v_numberplate");
+        vehicleTableColumns.put(4, "v_type");
+        vehicleTableColumns.put(5, "v_rent");
+        vehicleTableColumns.put(6, "v_total_distance");
+        vehicleTableColumns.put(7, "v_security_deposit");
+        vehicleTableColumns.put(8, "v_service_state");
+        vehicleTableColumns.put(9, "v_borrower_id");
+        vehicleTableColumns.put(10, "v_rented_date");
+        vehicleTableColumns.put(11, "v_return_date");
 
     }
     
@@ -261,7 +261,7 @@ public class AdminScreen {
                 setValue = "\'" + setValue + "\'";
             }
 
-            String queryValue = adminColumnNames.get(columnNumber+1)+" = "+setValue;
+            String queryValue = vehicleTableColumns.get(columnNumber+1)+" = "+setValue;
 
             String conditionValue = "v_id = "+vehicle_id;
 
