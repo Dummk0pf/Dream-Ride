@@ -71,6 +71,23 @@ public class SQLInterface {
         }
         
     }
+
+    public boolean excecuteInsert(String tableName, String columnName, String insertValues){
+
+        String query = "INSERT INTO "+tableName+" "+columnName+" VALUES "+insertValues;
+        
+        try {
+            
+            statment.execute(query);
+
+            return true;
+
+        } catch (Exception e) {
+            // System.out.println("Class: SQLInterface Method: excecuteInsert");
+            return false;
+        }
+        
+    }
     
     public boolean excecuteUpdate(String tableName, String setString, String whereCondition){
 

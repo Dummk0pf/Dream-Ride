@@ -50,6 +50,10 @@ public class BorrowerScreen {
 
                 else if(option == 2){
                     signUp();
+                    console.readLine("Sign In to Continue ... (Press Enter) ");
+                    clearScreen();
+                    loopLimiter++;
+                    continue;
                 }
 
             } catch (Exception e) {
@@ -77,7 +81,7 @@ public class BorrowerScreen {
             try {
                 if(res != null && res.next() && res.getString(1).equals(password)){
                     // TODO: Display Table as a grid
-                    System.out.println("Successfully Logged In");
+                    console.readLine("Successfully Logged In (Press Enter) : ");
                     break;
                 }
 
@@ -103,10 +107,191 @@ public class BorrowerScreen {
 
         int loopLimiter = 0;
 
-        while (loopLimiter < 1000) {
+        while (loopLimiter < 5000) {
+
             System.out.println("Creating your new Account");
+            System.out.println();
+
+            String b_username = "";
+            String b_password = "";
+            String b_name = "";
+            String b_phn_number = "";
+            String b_aadhar_number = "";
+            String b_driving_licence = "";
+            String b_address = "";
 
 
+            // User-Name
+            
+            try {
+                b_username = console.readLine("Enter a UserName (50 Characters Max): ");
+                ResultSet userNameCheck = dbConnector.excecuteSelect(borrowerColumnNames.get(1), borrowerTableName, borrowerColumnNames.get(2)+" = '"+b_username+"'", null, null, null);
+                if(userNameCheck.next() || b_username.length() == 0){
+                    console.readLine("Sorry the User-name is already taken :( (Press Enter) ");
+                    clearLine(4);
+                    loopLimiter++;
+                    continue;
+                }
+                if(b_username.length() != 0 && b_username.length() > 50){
+                    console.readLine("Sorry User-name is invalid :( (Press Enter) ");
+                    clearLine(4);
+                    loopLimiter++;
+                    continue;
+                }
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(4);
+                loopLimiter++;
+                continue;
+            }
+
+
+            
+            // Password
+            
+            try {
+                b_password = console.readLine("Enter a password (20 Characters Max) : ");
+                if(b_password.equals("") || b_password.length() > 20){
+                    console.readLine("Sorry Your Password is invalid :( (Press Enter) ");
+                    clearLine(5);
+                    loopLimiter++;
+                    continue;
+                }
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(5);
+                loopLimiter++;
+                continue;
+            }
+            
+            
+            
+            // Name
+            
+            try {
+                b_name = console.readLine("Enter your Name (100 Characters Max) : ");
+                if(b_name.equals("") || b_name.length() > 100){
+                    console.readLine("Sorry Your Name is empty :( (Press Enter) ");
+                    clearLine(6);
+                    loopLimiter++;
+                    continue;
+                }
+                
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(6);
+                loopLimiter++;
+                continue;
+            }
+            
+            
+            
+            // Phone Number 
+            
+            try {
+                b_phn_number = console.readLine("Enter your Phone Number (10 Characters Max) : ");
+                if(b_phn_number.length() != 10){
+                    console.readLine("Sorry Your Phone Number is invalid :( (Press Enter) ");
+                    clearLine(7);
+                    loopLimiter++;
+                    continue;
+                }
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(7);
+                loopLimiter++;
+                continue;
+            }
+            
+            
+            
+            // Aadhar Number ** 
+            
+            try {
+                b_aadhar_number = console.readLine("Enter your Aadhar Number (12 Characters) : ");
+
+                ResultSet aadharCheck = dbConnector.excecuteSelect(borrowerColumnNames.get(1), borrowerTableName, borrowerColumnNames.get(6)+" = '"+b_aadhar_number+"'", null, null, null);
+
+                if(aadharCheck.next() || b_aadhar_number.length() != 12){
+                    console.readLine("Sorry Your Aadhar Number is invalid :( (Press Enter) ");
+                    clearLine(8);
+                    loopLimiter++;
+                    continue;
+                }
+
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(8);
+                loopLimiter++;
+                continue;
+            }
+
+
+
+            // Driving Licence ** 
+            
+            try {
+                b_driving_licence = console.readLine("Enter your Driving licence Number (DL No) (16 Characters) : ");
+
+                ResultSet drivingLisCheck = dbConnector.excecuteSelect(borrowerColumnNames.get(1), borrowerTableName, borrowerColumnNames.get(7)+" = '"+b_driving_licence+"'", null, null, null);
+
+                if(drivingLisCheck.next() || b_driving_licence.length() != 16){
+                    console.readLine("Sorry Your DL Number is invalid :( (Press Enter) ");
+                    clearLine(9);
+                    loopLimiter++;
+                    continue;
+                }
+
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(9);
+                loopLimiter++;
+                continue;
+            }
+            
+            
+            
+            // Address ** 
+            
+            try {
+                b_address = console.readLine("Enter your Current Address (300 Characters Max) : ");
+                
+                if(b_address.length() == 0 && b_address.length() > 300){
+                    console.readLine("Sorry Your Address is invalid :( (Press Enter) ");
+                    clearLine(10);
+                    loopLimiter++;
+                    continue;
+                }
+            
+
+            } catch (Exception e) {
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(10);
+                loopLimiter++;
+                continue;
+            }
+
+            String columnNames = "(";
+
+            for (int i = 2; i < 8; i++) {
+                columnNames += borrowerColumnNames.get(i)+",";
+            }
+
+            columnNames += borrowerColumnNames.get(8)+")";
+            
+            String values = "('"+b_username+"' , '"+b_password+"' , '"+b_name+"' , '"+b_phn_number+"' , '"+b_aadhar_number+"' , '"+b_driving_licence+"' , '"+b_address+"'"+")";
+            
+            boolean result = dbConnector.excecuteInsert(borrowerTableName, columnNames, values);
+            
+            if(result){
+                break;
+            }
+            else{
+                console.readLine("Something's Wrong Please try again (Press Enter) ");
+                clearLine(11);
+                loopLimiter++;
+                continue;
+            }
         }
     }
 
