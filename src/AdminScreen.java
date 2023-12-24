@@ -13,13 +13,15 @@ public class AdminScreen {
     private Console console = System.console();
 
     private HashMap<Integer, String> adminColumnNames;
-    private String tableName;
+    private String vehicleTableName;
+    private String adminTableName;
 
     public AdminScreen(){
         dbConnector = new SQLInterface();
         vTable = new VehicleTable();
 
-        tableName = "vehicle_details";
+        vehicleTableName = "vehicle_details";
+        adminTableName = "admin_accounts";
 
         adminColumnNames = new HashMap<Integer, String>();
 
@@ -37,12 +39,12 @@ public class AdminScreen {
 
     }
     
-    public void signIn(){
-        getInput();
+    public void logIn(){
+        signIn();
         tableOptions();
     }
 
-    private void getInput(){
+    private void signIn(){
         clearScreen();
 
         // TODO: Welcome Screen and terminate application
@@ -50,7 +52,7 @@ public class AdminScreen {
         admin_username = console.readLine("User-name: ");
         admin_password = String.valueOf(console.readPassword("Password: "));
 
-        ResultSet res = dbConnector.excecuteSelect("admin_password", "admin_accounts", "admin_username = '"+admin_username+"'", null, null, null);
+        ResultSet res = dbConnector.excecuteSelect("admin_password", adminTableName, "admin_username = '"+admin_username+"'", null, null, null);
 
         try {
             if(res != null && res.next() && res.getString(1).equals(admin_password)){
@@ -61,10 +63,10 @@ public class AdminScreen {
             else{
                 System.out.println("Invalid SignIn :(");
                 console.readLine("Press Enter to Continue: ");
-                getInput();
+                signIn();
             }
         } catch (SQLException e) {
-            System.out.println("Class: AdminScreen Method: getInput");
+            System.out.println("Class: AdminScreen Method: signIn");
         }
 
     }
@@ -172,7 +174,7 @@ public class AdminScreen {
                 continue;
             }
             
-            boolean result = dbConnector.excecuteInsert(tableName, vehicleInfo.toString());
+            boolean result = dbConnector.excecuteInsert(vehicleTableName, vehicleInfo.toString());
             
             if(result){
                 console.readLine("Vehicle Added Sucessfully (Press Enter)...");
@@ -205,7 +207,7 @@ public class AdminScreen {
 
             String vehicle_id = "\'"+console.readLine("Enter the Vehicle ID of the vehicle: ")+"\'";
     
-            ResultSet result = dbConnector.excecuteSelect("v_id", tableName, "v_id = "+vehicle_id, null, null, null);
+            ResultSet result = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = "+vehicle_id, null, null, null);
             
             try {
                 if(result == null || !result.next()){
@@ -263,7 +265,7 @@ public class AdminScreen {
 
             String conditionValue = "v_id = "+vehicle_id;
 
-            boolean res = dbConnector.excecuteUpdate(tableName, queryValue, conditionValue);
+            boolean res = dbConnector.excecuteUpdate(vehicleTableName, queryValue, conditionValue);
 
             if(res){
                 console.readLine("Vehicle Information updated successfully.. (Press Enter)");
@@ -293,7 +295,7 @@ public class AdminScreen {
 
             String vehicle_id = "\'"+console.readLine("Enter the Vehicle ID of the vehicle: ")+"\'";
     
-            ResultSet result = dbConnector.excecuteSelect("v_id", tableName, "v_id = "+vehicle_id, null, null, null);
+            ResultSet result = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = "+vehicle_id, null, null, null);
             
             try {
                 if(result == null || !result.next()){
@@ -310,7 +312,7 @@ public class AdminScreen {
             String choice = console.readLine("Are you sure about removing the vehicle (y/n) : ").toLowerCase();
 
             if(choice.charAt(0) == 'y'){
-                boolean res = dbConnector.excecuteDelete(tableName, "v_id = "+vehicle_id);
+                boolean res = dbConnector.excecuteDelete(vehicleTableName, "v_id = "+vehicle_id);
                 if(res){
                     console.readLine("Successfully removed vehicle... (Press Enter)");
                     break;
@@ -368,7 +370,7 @@ public class AdminScreen {
                     continue;
                 }
         
-                ResultSet result = dbConnector.excecuteSelect("*", tableName, searchColumn+" = "+searchValue, null, null, null);
+                ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, searchColumn+" = "+searchValue, null, null, null);
 
 
                 if(result == null || !result.next()){
@@ -435,7 +437,7 @@ public class AdminScreen {
                     continue;
                 }
         
-                ResultSet result = dbConnector.excecuteSelect("*", tableName, null, null, null, sortColumn);
+                ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, null, null, null, sortColumn);
     
     
                 if(result == null || !result.next()){

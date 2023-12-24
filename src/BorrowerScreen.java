@@ -12,11 +12,14 @@ public class BorrowerScreen {
     private SQLInterface dbConnector;
     private VehicleTable vTable;
 
+    private String borrowerTableName;
     private HashMap<Integer, String> borrowerColumnNames;
 
     public BorrowerScreen(){
+
         dbConnector = new SQLInterface();
         vTable = new VehicleTable();
+        borrowerTableName = "borrower_accounts";
 
         borrowerColumnNames = new HashMap<Integer, String>();
 
@@ -31,35 +34,80 @@ public class BorrowerScreen {
         
     }
 
-    public void signIn(){
-        getInput();
+    public void logIn(){
+        clearScreen();
+        int loopLimiter = 0;
+        while (loopLimiter < 1000) {
+            try {
+                System.out.println("1. Sign In");
+                System.out.println("2. Sign Up");
+                
+                int option = Integer.parseInt(console.readLine("Enter your option (1/2) : "));
+
+                if(option == 1){
+                    signIn();
+                }
+
+                else if(option == 2){
+                    signUp();
+                }
+
+            } catch (Exception e) {
+                console.readLine("Invalid Choice (Press Enter)  ");
+                clearLine(4);
+                loopLimiter++;
+            }
+            
+        }
+
     }
 
-    private void getInput(){
+    private void signIn(){
         clearScreen();
+        int loopLimiter = 0;
 
         // TODO: Welcome Screen and terminate application
 
-        username = console.readLine("User-name: ");
-        password = String.valueOf(console.readPassword("Password: "));
+        while(loopLimiter < 1000){
+            username = console.readLine("User-name: ");
+            password = String.valueOf(console.readPassword("Password: "));
 
-        ResultSet res = dbConnector.excecuteSelect("admin_password", "admin_accounts", "admin_username = '"+username+"'", null, null, null);
+            ResultSet res = dbConnector.excecuteSelect(borrowerColumnNames.get(3), borrowerTableName, borrowerColumnNames.get(2)+" = '"+username+"'", null, null, null);
 
-        try {
-            if(res != null && res.next() && res.getString(1).equals(password)){
-                // TODO: Display Table as a grid
-                vTable.displayAdminTable();
+            try {
+                if(res != null && res.next() && res.getString(1).equals(password)){
+                    // TODO: Display Table as a grid
+                    System.out.println("Successfully Logged In");
+                    break;
+                }
+
+                else{
+                    System.out.println("Invalid SignIn :(");
+                    console.readLine("Press Enter to Continue: ");
+                    clearLine(4);
+                    loopLimiter++;
+                }
+            } catch (SQLException e) {
+                System.out.println("Class: AdminScreen Method: signIn");
+                clearLine(4);
+                loopLimiter++;
             }
-
-            else{
-                System.out.println("Invalid SignIn :(");
-                console.readLine("Press Enter to Continue: ");
-                getInput();
-            }
-        } catch (SQLException e) {
-            System.out.println("Class: AdminScreen Method: getInput");
         }
+    }
 
+    private void signUp(){
+
+        // TODO: Username < 50 password < 20 name < 100
+
+        clearScreen();
+
+        int loopLimiter = 0;
+
+        while (loopLimiter < 1000) {
+            System.out.println("Creating your new Account");
+
+
+        }
     }
 
     private void clearScreen(){

@@ -10,13 +10,13 @@ public class Main {
         if(option == 1){
             // Admin Side
             AdminScreen adminScreen = new AdminScreen();
-            adminScreen.signIn();
+            adminScreen.logIn();
         }
         
         else if(option == 2){
             // Renter Side
             BorrowerScreen borrowerScreen = new BorrowerScreen();
-            borrowerScreen.signIn();
+            borrowerScreen.logIn();
         }
         
     }
