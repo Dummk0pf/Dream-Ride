@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 public class AdminScreen {
 
+    private int LOOP_MAX_LIMIT = 2000;
     private String admin_username = "";
     private String admin_password = "";
 
@@ -74,7 +75,7 @@ public class AdminScreen {
     private void tableOptions() {
         int loopLimiter = 0;
 
-        while (loopLimiter < 1000) {
+        while (loopLimiter < LOOP_MAX_LIMIT) {
 
             System.out.println();
 
@@ -148,7 +149,7 @@ public class AdminScreen {
         
         int loopLimiter = 0;
         
-        while(loopLimiter < 1000){
+        while(loopLimiter < LOOP_MAX_LIMIT){
             
             vehicleInfo.append("(");
             
@@ -201,7 +202,7 @@ public class AdminScreen {
 
         int loopLimiter = 0;
 
-        while(loopLimiter < 1000){
+        while(loopLimiter < LOOP_MAX_LIMIT){
 
             int choiceLimiter = 0;
 
@@ -291,7 +292,7 @@ public class AdminScreen {
 
         int loopLimiter = 0;
 
-        while(loopLimiter < 1000){
+        while(loopLimiter < LOOP_MAX_LIMIT){
 
             String vehicle_id = "\'"+console.readLine("Enter the Vehicle ID of the vehicle: ")+"\'";
     
@@ -344,7 +345,7 @@ public class AdminScreen {
         
         int loopLimiter = 0;
         
-        while(loopLimiter < 1000){
+        while(loopLimiter < LOOP_MAX_LIMIT){
 
             try {
             
@@ -414,7 +415,7 @@ public class AdminScreen {
         
         int loopLimiter = 0;
         
-        while(loopLimiter < 1000){
+        while(loopLimiter < LOOP_MAX_LIMIT){
     
             try {
             
