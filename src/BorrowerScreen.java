@@ -13,10 +13,12 @@ public class BorrowerScreen {
     private Console console = System.console();
     private SQLInterface dbConnector;
     private VehicleTable vTable;
+    private BorrowerCart bCart;
 
     private BorrowerTable bTable;
     private String borrowerTableName;
     private HashMap<Integer, String> borrowerColumnNames;
+    private String vehicleTableName;
 
     public BorrowerScreen(){
 
@@ -26,6 +28,7 @@ public class BorrowerScreen {
 
         userid = "";
         borrowerTableName = "borrower_accounts";
+        vehicleTableName = "vehicle_details";
         borrowerColumnNames = new HashMap<Integer, String>();
 
         borrowerColumnNames.put(1, "borrower_id");
@@ -89,6 +92,7 @@ public class BorrowerScreen {
                     // TODO: Display Table as a grid
                     console.readLine("Successfully Logged In (Press Enter) : ");
                     userid = res.getString(2);
+                    bCart = new BorrowerCart(userid);
                     break;
                 }
 
@@ -309,10 +313,10 @@ public class BorrowerScreen {
         
         int loopLimiter = 0;
         char option = 'v';
-        boolean carSelectFlag = false;
-        boolean bikeSelectFlag = false;
         
         while (loopLimiter < LOOP_MAX_LIMIT) {
+            boolean carSelectFlag = bCart.isCarPresent();
+            boolean bikeSelectFlag = bCart.isBikePresent();
             
             System.out.println("Add a vehicle to the Cart (A/a) : ");
             System.out.println("View your cart (C/c) : ");
@@ -397,11 +401,32 @@ public class BorrowerScreen {
                             try {
                                 addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                                // TODO: Add to Cart
+                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car'", null, null, null);
+
+                                if(isPresent != null && isPresent.next()){
+                                    boolean isAdded = bCart.addVehicle(0, addVehicleId);
+                                    
+                                    if(!isAdded){
+                                        console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                        clearLine(16);
+                                        loopLimiter++;
+                                        continue;
+                                    }
+                                }
                                 
+                                else{
+                                    console.readLine("Vehicle Id not found :( (Press Enter) ");
+                                    clearLine(16);
+                                    loopLimiter++;
+                                    continue;
+                                }
+
                                 
                             } catch (Exception e) {
-                                
+                                console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                clearLine(16);
+                                loopLimiter++;
+                                continue;
                             }
 
                             console.readLine("Vehicle Added to Cart Successfully :) (Press Enter) ");
@@ -413,23 +438,46 @@ public class BorrowerScreen {
 
                     else{
 
-                        carSelectFlag = true;
-
+                        
                         String addVehicleId = "";
-
+                        
                         try {
                             addVehicleId = console.readLine("Enter the vehicle Id: ");
-
-                            // TODO: Add to Cart
+                            
+                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car'", null, null, null);
+                            
+                            if(isPresent != null && isPresent.next()){
+                                boolean isAdded = bCart.addVehicle(0, addVehicleId);
+                                
+                                if(!isAdded){
+                                    console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                    clearLine(14);
+                                    loopLimiter++;
+                                    continue;
+                                }
+                            }
+                            
+                            else{
+                                console.readLine("Vehicle Id Not found :( (Press Enter)");
+                                clearLine(14);
+                                loopLimiter++;
+                                continue;
+                            }
                             
                             
                         } catch (Exception e) {
-                            
+                            console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                            clearLine(14);
+                            loopLimiter++;
+                            continue;
                         }
 
+                        carSelectFlag = bCart.isCarPresent();
+                        
                         console.readLine("Vehicle Added to Cart Successfully :) (Press Enter) ");
                         clearLine(14);
                         continue;
+
                     }
                 }
 
@@ -465,11 +513,32 @@ public class BorrowerScreen {
                             try {
                                 addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                                // TODO: Add to Cart
+                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike'", null, null, null);
+
+                                if(isPresent != null && isPresent.next()){
+                                    boolean isAdded = bCart.addVehicle(1, addVehicleId);
+                                    
+                                    if(!isAdded){
+                                        console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                        clearLine(16);
+                                        loopLimiter++;
+                                        continue;
+                                    }
+                                }
+                                
+                                else{
+                                    console.readLine("Vehicle Id not found :( (Press Enter) ");
+                                    clearLine(16);
+                                    loopLimiter++;
+                                    continue;
+                                }
                                 
                                 
                             } catch (Exception e) {
-                                
+                                console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                clearLine(16);
+                                loopLimiter++;
+                                continue;
                             }
 
                             console.readLine("Vehicle Added to Cart Successfully :) (Press Enter) ");
@@ -481,18 +550,39 @@ public class BorrowerScreen {
 
                     else{
 
-                        bikeSelectFlag = true;
+                        bikeSelectFlag = bCart.isBikePresent();
 
                         String addVehicleId = "";
 
                         try {
                             addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                            // TODO: Add to Cart
+                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike'", null, null, null);
+
+                            if(isPresent != null && isPresent.next()){
+                                boolean isAdded = bCart.addVehicle(1, addVehicleId);
+                                
+                                if(!isAdded){
+                                    console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                                    clearLine(14);
+                                    loopLimiter++;
+                                    continue;
+                                }
+                            }
+                            
+                            else{
+                                console.readLine("Vehicle Id Not found :( (Press Enter)");
+                                clearLine(14);
+                                loopLimiter++;
+                                continue;
+                            }
                             
                             
                         } catch (Exception e) {
-                            
+                            console.readLine("Addition of Vehicle Unsuccessfull :( (Press Enter)");
+                            clearLine(14);
+                            loopLimiter++;
+                            continue;
                         }
 
                         console.readLine("Vehicle Added to Cart Successfully :) (Press Enter) ");
@@ -506,7 +596,13 @@ public class BorrowerScreen {
 
             else if(option == 'c'){
 
+                clearScreen();
+                bCart.displayBorrowerCart();
                 
+                clearScreen();
+                vTable.displayBorrowerTable();
+                System.out.println();
+                System.out.println();
                 
             }
 

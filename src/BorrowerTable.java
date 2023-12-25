@@ -33,10 +33,11 @@ public class BorrowerTable {
         ResultSet allBorrowers = dbConnnector.excecuteSelect("*", borrowerTableName, null, null, null, null);
 
         try {
-            if(allBorrowers.next()){
+            while(allBorrowers != null && allBorrowers.next()){
                 for(int i=1;i<=8;i++){
-                    System.out.println(allBorrowers.getString(i));
+                    System.out.print(allBorrowers.getString(i)+" ");
                 }
+                System.out.println();
             }
         } catch (SQLException e) {
             console.readLine("Sorry Please try again :( (Press enter) ");
@@ -49,7 +50,74 @@ public class BorrowerTable {
             
             System.out.println("Return to Main Screen (M/m) : ");
             System.out.println("Delete an Account From Server (D/d) : ");
-            // TODO: Complete the deletion process
+            
+            char option = 'm';
+            
+            try {
+                String options = console.readLine("Enter your choice : ").toLowerCase();
+                if(options.length() != 1 || !"md".contains(options)){
+                    console.readLine("Invalid choice (Press enter)");
+                    clearLine(4);
+                    loopLimiter++;
+                    continue;
+                }
+
+                option = options.charAt(0);
+                
+            } catch (Exception e) {
+                console.readLine("Invalid choice (Press enter)");
+                clearLine(4);
+                loopLimiter++;
+                continue;
+            }
+
+            if(option == 'm'){
+                return;
+            }
+
+            else if(option == 'd'){
+
+                String borrowerId = console.readLine("Enter the borrower Id : ");
+
+                try {
+                    ResultSet checkBorrower = dbConnnector.excecuteSelect(borrowerId, borrowerTableName, borrowerColumnNames.get(1)+" = "+borrowerId, null, null, null);
+
+                    if(!checkBorrower.next() || checkBorrower.getString(1).equals("")){
+                        console.readLine("Invalid Borrower Id :( (Press Enter) ");
+                        clearLine(5);
+                        loopLimiter++;
+                        continue;
+                    }
+
+                    String choice = console.readLine("Are you sure about that ? (Type yes) : ").toLowerCase();
+
+                    if(!choice.equals("yes")){
+                        clearLine(5);
+                        loopLimiter++;
+                        continue;
+                    }
+
+                    boolean isDeleted = dbConnnector.excecuteDelete(borrowerTableName, borrowerColumnNames.get(1)+" = "+borrowerId);
+
+                    if(isDeleted){
+                        console.readLine("Account deleted Successfully :) (Press Enter) ");
+                        break;
+                    }
+
+                    else{
+                        console.readLine("Sorry something went wrong :( ");
+                        clearLine(6);
+                        loopLimiter++;
+                        continue;
+                    }
+                } catch (Exception e) {
+                    console.readLine("Sorry something went wrong :( ");
+                    clearLine(6);
+                    loopLimiter++;
+                    continue;
+                }
+
+            }
         }
     }
 

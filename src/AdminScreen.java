@@ -134,17 +134,18 @@ public class AdminScreen {
                 sortVehicles();
                 vTable.displayAdminTable();
             }
-
+            
             else if(option == 'v'){
-
+                
             }
-
+            
             else if(option == 'c'){
-
+                
             }
-
+            
             else if(option == 'b'){
                 bTable.displayAllBorrowers();
+                vTable.displayAdminTable();
             }
 
             else if(option == 'p'){

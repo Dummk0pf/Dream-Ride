@@ -55,6 +55,44 @@ public class SQLInterface {
         return null;
     }
     
+    public ResultSet excecuteSelect(String column, String tableName, String whereCondition, String groupByColumn, String havingCondition, String orderByColumn, String subQuery){
+        
+        String query = "SELECT "+column+" FROM "+tableName;
+    
+        if(whereCondition != null && subQuery != null){
+            query += " WHERE "+whereCondition+" = ("+subQuery+")";
+        }
+
+        if(whereCondition != null && subQuery == null){
+            query += " WHERE "+whereCondition;
+        }
+    
+        if(groupByColumn != null){
+            query += " GROUP BY "+groupByColumn;
+        }
+    
+        if(havingCondition != null){
+            query += " HAVING "+havingCondition;
+        }
+    
+        if(orderByColumn != null){
+            query += " ORDER BY "+orderByColumn;
+        }
+    
+        try {
+    
+            ResultSet result = statment.executeQuery(query);
+            return result;
+    
+        } catch (SQLException e) {
+            System.out.println("Class: SQLInterface Method: excecuteSelect");
+        }
+        
+        return null;
+
+
+    }
+    
     public boolean excecuteInsert(String tableName, String insertValues){
 
         String query = "INSERT INTO "+tableName+" VALUES "+insertValues;
