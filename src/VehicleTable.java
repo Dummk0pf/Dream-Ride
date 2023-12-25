@@ -65,7 +65,7 @@ public class VehicleTable {
             
             columnNames += vehicleTableColumns.get(7);
             
-            String whereCondition = "v_service_state = true AND v_rented_date is null";
+            String whereCondition = "v_service_state = true AND v_borrower_id is null";
             
             ResultSet result = dbConnector.excecuteSelect(columnNames, vehicleTableName, whereCondition, null, null, null);
             
