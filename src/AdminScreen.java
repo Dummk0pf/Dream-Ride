@@ -11,16 +11,20 @@ public class AdminScreen {
 
     private SQLInterface dbConnector = null;
     private VehicleTable vTable = null;
+    private BorrowerTable bTable = null;
     private Console console = System.console();
 
     private HashMap<Integer, String> vehicleTableColumns;
     private String vehicleTableName;
     private String adminTableName;
+    private String borrowerTableName;
 
     public AdminScreen(){
         dbConnector = new SQLInterface();
         vTable = new VehicleTable();
+        bTable = new BorrowerTable();
 
+        borrowerTableName = "borrower_accounts";
         vehicleTableName = "vehicle_details";
         adminTableName = "admin_accounts";
 
@@ -79,12 +83,16 @@ public class AdminScreen {
 
             System.out.println();
 
-            System.out.println("Search a Vehicle: (S/s)");
-            System.out.println("Sort by : (T/t)");
-            System.out.println("Add a Vehicle: (A/a)");
-            System.out.println("Remove a Vehicle: (R/r)");
-            System.out.println("Modify Vehicle Details: (M/m)");
-            System.out.println("Quit Application: (Q/q)");
+            System.out.println("Search a Vehicle (S/s) : ");
+            System.out.println("Sort by (T/t) : ");
+            System.out.println("Add a Vehicle (A/a) : ");
+            System.out.println("Remove a Vehicle (R/r) : ");
+            System.out.println("Modify Vehicle Details (M/m) : ");
+            System.out.println("View Previous Rented Cars (V/v) : ");
+            System.out.println("View Current Rented Cars (C/c) : ");
+            System.out.println("View All Borrowers (B/b) : ");
+            System.out.println("View All Payment Records (P/p) ");
+            System.out.println("Quit Application (Q/q) : ");
 
             System.out.println();
     
@@ -100,7 +108,7 @@ public class AdminScreen {
                 continue;
                 option = Character.toLowerCase(action.charAt(0));
 
-            } while (!("mqstar".contains(option+"")));
+            } while (!("mqstarvcbp".contains(option+"")));
     
             if(option == 'a'){
                 addVehicle();
@@ -125,6 +133,22 @@ public class AdminScreen {
             else if(option == 't'){
                 sortVehicles();
                 vTable.displayAdminTable();
+            }
+
+            else if(option == 'v'){
+
+            }
+
+            else if(option == 'c'){
+
+            }
+
+            else if(option == 'b'){
+                bTable.displayAllBorrowers();
+            }
+
+            else if(option == 'p'){
+
             }
     
             else if(option == 'q'){

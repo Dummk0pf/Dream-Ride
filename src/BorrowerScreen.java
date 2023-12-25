@@ -108,8 +108,6 @@ public class BorrowerScreen {
 
     private void signUp(){
 
-        // TODO: Username < 50 password < 20 name < 100
-
         clearScreen();
 
         int loopLimiter = 0;
@@ -508,7 +506,7 @@ public class BorrowerScreen {
 
             else if(option == 'c'){
 
-
+                
                 
             }
 
@@ -524,7 +522,6 @@ public class BorrowerScreen {
                 vTable.displayBorrowerTable();
                 System.out.println();
                 System.out.println();
-                
 
             }
 

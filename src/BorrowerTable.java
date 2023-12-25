@@ -27,6 +27,32 @@ public class BorrowerTable {
         borrowerColumnNames.put(8, "borrower_address");
     }
 
+    public void displayAllBorrowers(){
+        clearScreen();
+
+        ResultSet allBorrowers = dbConnnector.excecuteSelect("*", borrowerTableName, null, null, null, null);
+
+        try {
+            if(allBorrowers.next()){
+                for(int i=1;i<=8;i++){
+                    System.out.println(allBorrowers.getString(i));
+                }
+            }
+        } catch (SQLException e) {
+            console.readLine("Sorry Please try again :( (Press enter) ");
+            return;
+        }
+
+        int loopLimiter = 0;
+
+        while (loopLimiter < LOOP_MAX_LIMIT) {
+            
+            System.out.println("Return to Main Screen (M/m) : ");
+            System.out.println("Delete an Account From Server (D/d) : ");
+            // TODO: Complete the deletion process
+        }
+    }
+
     public boolean displayBorrowerAccount(String borrowerId){
         int loopLimiter = 0;
 
