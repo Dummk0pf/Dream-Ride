@@ -18,6 +18,7 @@ public class BorrowerCart {
     private String CarId;
     private String BikeId;
     private String borrowerId;
+    private int paymentStatus;
     
     public BorrowerCart(String borrowerId){
 
@@ -28,6 +29,7 @@ public class BorrowerCart {
         borrowerCartTableName = "borrower_cart";
         CarId = "";
         BikeId = "";
+        paymentStatus = -1;
         this.borrowerId = borrowerId;
         initializeCart();
 
@@ -45,6 +47,11 @@ public class BorrowerCart {
 
     public boolean isBikePresent(){
         return !BikeId.equals("");
+    }
+
+    public int getPaymentStatus(){
+        paymentStatus = checkBorrowerPaymentState(borrowerId);
+        return paymentStatus;
     }
 
     public void initializeCart(){
@@ -159,8 +166,8 @@ public class BorrowerCart {
         String option = console.readLine("Are you sure about that ? (Type yes) : ").toLowerCase();
 
         if(option.equals("yes")){
-            payment.addBorrowerPayment(borrowerId, cautionDeposit + totalRent + totalSecurityDeposit);
-            updateAllPaymentDetails();
+            String paymentId = payment.addBorrowerPayment(borrowerId, cautionDeposit + totalRent + totalSecurityDeposit);
+            updateAllPaymentDetails(paymentId);
             return true;
         }
 
@@ -169,13 +176,12 @@ public class BorrowerCart {
         }
     }
 
-    public void updateAllPaymentDetails(){
+    public void updateAllPaymentDetails(String paymentId){
 
-        // TODO: Start from here
         // Updating borrower cart
 
         try {
-            boolean updatePaymentBorrower = dbConnector.excecuteUpdate(borrowerCartTableName, "payment_id = ", BikeId);
+            boolean updatePaymentBorrower = dbConnector.excecuteUpdate(borrowerCartTableName, "payment_id = "+paymentId, "borrower_id = "+borrowerId);
         } catch (Exception e) {
             
         }
@@ -204,124 +210,205 @@ public class BorrowerCart {
         // Updating Rented Vehicle Details
 
         try {
-            String bikeValues = "('"+BikeId+"', "+borrowerId+", "+"0, 0, 2)";
-            String CarValues = "('"+CarId+"', "+borrowerId+", "+"0, 0, 2)";
+            String bikeValues = "('"+BikeId+"', "+borrowerId+", "+"0, 0, 2, 0)";
+            String CarValues = "('"+CarId+"', "+borrowerId+", "+"0, 0, 2, 0)";
             boolean insertBike = dbConnector.excecuteInsert("rented_vehicles", bikeValues);
             boolean insertCar = dbConnector.excecuteInsert("rented_vehicles", CarValues);
         } catch (Exception e) {
             
         }
+    }
 
+    public int checkBorrowerPaymentState(String borrowerId){
 
+        // Not paid -1
+        // Paid but processing 0
+        // Paid fully 1
 
-        // 
+        try {
+            ResultSet checkPayment = dbConnector.excecuteSelect("payment_id, payment_status", "payment_details", "borrower_id = "+borrowerId, null, null, null);
+            if(checkPayment != null && checkPayment.next()){
+                String paymentId = checkPayment.getString(1);
+                String paymentStatus = checkPayment.getString(2);
+
+                if(paymentId.equals("") && paymentStatus.equals("")){
+                    return -1;
+                }
+
+                else if(paymentStatus.equals("0")){
+                    return 0;
+                }
+
+                else if(paymentStatus.equals("1")){
+                    return 1;
+                }
+
+                else{
+                    return -1;
+                }
+
+            }
+            else{
+                return -1;
+            }
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public void displayBorrowerCart(){
 
-        int loopLimiter = 0;
+        paymentStatus = checkBorrowerPaymentState(borrowerId);
 
-        while (loopLimiter < LOOP_MAX_LIMIT) {
-            
-            ResultSet carDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
-            try {
-                if(carDetail != null && carDetail.next()){
-                    for (int i = 1; i <= 6; i++) {
-                        System.out.print(carDetail.getString(i)+" ");
-                    }
-                    System.out.println();
-                }
-            } catch (SQLException e) {
+        // Not Paid
+        if(paymentStatus == -1){
+            int loopLimiter = 0;
+    
+            while (loopLimiter < LOOP_MAX_LIMIT) {
                 
-            }
-            
-            ResultSet bikeDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
-            try {
-                if(carDetail != null && bikeDetail.next()){
-                    for (int i = 1; i <= 6; i++) {
-                        System.out.print(bikeDetail.getString(i)+" ");
-                    }
-                    System.out.println();
-                }
-            } catch (SQLException e) {
-                
-            }
-
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            
-            System.out.println("1. Remove a vehicle from the Cart (R/r)");
-            System.out.println("2. Book your current Vehicles (B/b)");
-            System.out.println("3. Exit to Main Menu (M/m) ");
-
-            String option = console.readLine("Enter your option : ").toLowerCase();
-
-            if(option.length() != 1 || !"rbm".contains(option)){
-                clearScreen();
-                loopLimiter++;
-                continue;
-            }
-
-            char choice = option.charAt(0);
-
-            if(choice == 'r'){
-
-                String vehicleId = console.readLine("Enter the Vehicle Id : ");
-
-                ResultSet isPresent = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"' AND borrower_id = "+borrowerId, null, null, null);
-
+                ResultSet carDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
                 try {
-                    if(isPresent != null && isPresent.next()){
-                        boolean resultDelete = removeVehicle(vehicleId);
-                        if(resultDelete){
-                            if(BikeId.equals(vehicleId))
-                            BikeId = "";
-                            if(CarId.equals(vehicleId))
-                            CarId = "";
-                            console.readLine("Vehicle Removed from cart ... (Press Enter)");
+                    if(carDetail != null && carDetail.next()){
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.print(carDetail.getString(i)+" ");
                         }
-                        else{
-                            console.readLine("Sorry Please Try Again ... (Press Enter)");
-                            loopLimiter++;
-                        }
-                        clearScreen();
-                        continue;
+                        System.out.println();
                     }
-
-                    else{
+                } catch (SQLException e) {
+                    
+                }
+                
+                ResultSet bikeDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
+                try {
+                    if(carDetail != null && bikeDetail.next()){
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.print(bikeDetail.getString(i)+" ");
+                        }
+                        System.out.println();
+                    }
+                } catch (SQLException e) {
+                    
+                }
+    
+                System.out.println();
+                System.out.println();
+                System.out.println();
+                
+                System.out.println("1. Remove a vehicle from the Cart (R/r)");
+                System.out.println("2. Book your current Vehicles (B/b)");
+                System.out.println("3. Exit to Main Menu (M/m) ");
+    
+                String option = console.readLine("Enter your option : ").toLowerCase();
+    
+                if(option.length() != 1 || !"rbm".contains(option)){
+                    clearScreen();
+                    loopLimiter++;
+                    continue;
+                }
+    
+                char choice = option.charAt(0);
+    
+                if(choice == 'r'){
+    
+                    String vehicleId = console.readLine("Enter the Vehicle Id : ");
+    
+                    ResultSet isPresent = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"' AND borrower_id = "+borrowerId, null, null, null);
+    
+                    try {
+                        if(isPresent != null && isPresent.next()){
+                            boolean resultDelete = removeVehicle(vehicleId);
+                            if(resultDelete){
+                                if(BikeId.equals(vehicleId))
+                                BikeId = "";
+                                if(CarId.equals(vehicleId))
+                                CarId = "";
+                                console.readLine("Vehicle Removed from cart ... (Press Enter)");
+                            }
+                            else{
+                                console.readLine("Sorry Please Try Again ... (Press Enter)");
+                                loopLimiter++;
+                            }
+                            clearScreen();
+                            continue;
+                        }
+    
+                        else{
+                            console.readLine("Vehicle Id is Invalid .. (Press Enter)");
+                            clearScreen();
+                            loopLimiter++;
+                            continue;
+                        }
+                    } catch (Exception e) {
                         console.readLine("Vehicle Id is Invalid .. (Press Enter)");
                         clearScreen();
                         loopLimiter++;
                         continue;
                     }
-                } catch (Exception e) {
-                    console.readLine("Vehicle Id is Invalid .. (Press Enter)");
-                    clearScreen();
-                    loopLimiter++;
-                    continue;
                 }
-            }
-
-            else if(choice == 'b'){
-                boolean result = bookVehicles();
-                if(result){
-                    console.readLine("Booked Successfully :) Press enter to Exit ... ");
+    
+                else if(choice == 'b'){
+                    boolean result = bookVehicles();
+                    if(result){
+                        console.readLine("Booked Successfully :) Press enter to Exit ... ");
+                        break;
+                    }
+                    else{
+                        clearScreen();
+                        loopLimiter++;
+                        continue;
+                    }
+                }
+    
+                else if(choice == 'm'){
+                    console.readLine("Press enter to Exit ... ");
                     break;
                 }
-                else{
-                    clearScreen();
-                    loopLimiter++;
-                    continue;
-                }
+    
             }
-
-            else if(choice == 'm'){
-                console.readLine("Press enter to Exit ... ");
-                break;
-            }
-
         }
+
+        // Paid but processing
+        else if(paymentStatus == 0){
+            clearScreen();
+            System.out.println("Your Payment is being Processed please wait :) .... ");
+            console.readLine("Press Enter to Return to Main Menu .... ");
+            return;
+        }
+
+
+        // Paid fully
+        else if(paymentStatus == 1){
+            int loopLimiter = 0;
+
+            while (loopLimiter < LOOP_MAX_LIMIT) {
+                ResultSet carDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
+                try {
+                    if(carDetail != null && carDetail.next()){
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.print(carDetail.getString(i)+" ");
+                        }
+                        System.out.println();
+                    }
+                } catch (SQLException e) {
+                    
+                }
+                
+                ResultSet bikeDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
+                try {
+                    if(carDetail != null && bikeDetail.next()){
+                        for (int i = 1; i <= 6; i++) {
+                            System.out.print(bikeDetail.getString(i)+" ");
+                        }
+                        System.out.println();
+                    }
+                } catch (SQLException e) {
+                    
+                }
+
+                // TODO: return or extend (return both for simplicity) extend ???
+            }
+        }
+
     }
 
     public void clearScreen(){

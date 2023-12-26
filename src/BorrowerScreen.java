@@ -317,6 +317,7 @@ public class BorrowerScreen {
         while (loopLimiter < LOOP_MAX_LIMIT) {
             boolean carSelectFlag = bCart.isCarPresent();
             boolean bikeSelectFlag = bCart.isBikePresent();
+            int paymentStatus = bCart.getPaymentStatus();
             
             System.out.println("Add a vehicle to the Cart (A/a) : ");
             System.out.println("View your cart (C/c) : ");
@@ -341,7 +342,7 @@ public class BorrowerScreen {
                 continue;
             }
 
-            if(option == 'a'){
+            if(option == 'a' && paymentStatus == -1){
 
                 int addChoice = 0;
                 System.out.println();
@@ -592,6 +593,20 @@ public class BorrowerScreen {
 
                 }
                 
+            }
+
+            else if(option == 'a' && paymentStatus == 0){
+                System.out.println();
+                System.out.println();
+                console.readLine("Cannot Add vehicles when your payment is being Processed :( (Press Enter) ... ");
+                clearLine(8);
+            }
+            
+            else if(option == 'a' && paymentStatus == 1){
+                System.out.println();
+                System.out.println();
+                console.readLine("Cannot Add vehicles when you have already rented vehicles :( (Press Enter) ... ");
+                clearLine(8);
             }
 
             else if(option == 'c'){

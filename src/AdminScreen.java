@@ -12,6 +12,8 @@ public class AdminScreen {
     private SQLInterface dbConnector = null;
     private VehicleTable vTable = null;
     private BorrowerTable bTable = null;
+    private RentedVehiclesTable rTable = null;
+    private PaymentDetails pTable = null;
     private Console console = System.console();
 
     private HashMap<Integer, String> vehicleTableColumns;
@@ -23,6 +25,8 @@ public class AdminScreen {
         dbConnector = new SQLInterface();
         vTable = new VehicleTable();
         bTable = new BorrowerTable();
+        pTable = new PaymentDetails();
+        rTable = new RentedVehiclesTable();
 
         borrowerTableName = "borrower_accounts";
         vehicleTableName = "vehicle_details";
@@ -140,7 +144,8 @@ public class AdminScreen {
             }
             
             else if(option == 'c'){
-                
+                rTable.displayAdminRentedTable();
+                vTable.displayAdminTable();
             }
             
             else if(option == 'b'){
@@ -149,7 +154,8 @@ public class AdminScreen {
             }
 
             else if(option == 'p'){
-
+                pTable.displayAdminPaymentDetails();
+                vTable.displayAdminTable();
             }
     
             else if(option == 'q'){
