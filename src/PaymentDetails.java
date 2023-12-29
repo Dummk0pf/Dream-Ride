@@ -14,10 +14,10 @@ public class PaymentDetails {
         paymentDetailTableName = "payment_details";
     }
 
-    public String addBorrowerPayment(String borrowerId, int amount){
+    public String addBorrowerPayment(String borrowerId, String vehicle_id, int amount){
         try {
-            String columnNames = "(payment_status, amount_paid, amount_pending, borrower_id)";
-            String values = "( false, 0, "+amount+" ,"+borrowerId+")";
+            String columnNames = "(payment_status, amount_paid, amount_pending, borrower_id, v_id)";
+            String values = "( false, 0, "+amount+" ,"+borrowerId+", '"+vehicle_id+"'"+")";
             boolean isAdded = dbConnector.excecuteInsert(paymentDetailTableName, columnNames, values);
 
             if(isAdded){
@@ -51,7 +51,7 @@ public class PaymentDetails {
                 ResultSet paymentDetails = dbConnector.excecuteSelect("*", paymentDetailTableName, null, null, null, null) ;
 
                 while(paymentDetails != null && paymentDetails.next()){
-                    for (int i = 1; i <= 5; i++) {
+                    for (int i = 1; i <= 6; i++) {
                         System.out.print(paymentDetails.getString(i)+" ");
                     }
 
@@ -67,7 +67,7 @@ public class PaymentDetails {
 
                 try {
                     String options = console.readLine("Enter your Option : ").toLowerCase();
-                    if(options.length() != 1 || !"p/m".contains(options)){
+                    if(options.length() != 1 || !"pm".contains(options)){
                         loopLimiter++;
                         clearScreen();
                         continue;

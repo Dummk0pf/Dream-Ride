@@ -253,6 +253,10 @@ public class AdminScreen {
                 e.printStackTrace();
             }
 
+            // TODO: rented date and return date problems
+            // Value of rented date cannot be reset as a usual method
+            // Similarly for rent and return date and for any other value with a null value
+
             System.out.println("01. Vehicle Name");
             System.out.println("02. Vehicle NumberPlate");
             System.out.println("03. Vehicle Type");

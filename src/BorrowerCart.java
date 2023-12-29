@@ -76,7 +76,7 @@ public class BorrowerCart {
         if(type == 0){
             if(CarId.equals("")){
                 CarId = vehicleId;
-                String values = "('"+vehicleId+"',"+borrowerId+","+"null,"+type+")";
+                String values = "('"+vehicleId+"',"+borrowerId+","+type+", "+"false "+")";
                 boolean isAdded = dbConnector.excecuteInsert(borrowerCartTableName, values);
                 return isAdded;            
             }
@@ -91,7 +91,7 @@ public class BorrowerCart {
         else{
             if(BikeId.equals("")){
                 BikeId = vehicleId;
-                String values = "('"+vehicleId+"',"+borrowerId+","+"null,"+type+")";
+                String values = "('"+vehicleId+"',"+borrowerId+","+type+", "+"false "+")";
                 boolean isAdded = dbConnector.excecuteInsert(borrowerCartTableName, values);
                 return isAdded;            
             }
@@ -118,8 +118,14 @@ public class BorrowerCart {
 
 
         int cautionDeposit = 30_000;
+
         int totalSecurityDeposit = 0;
+        int bikeSecurityDeposit = 0;
+        int carSecurityDeposit = 0;
+
         int totalRent = 0;
+        int bikeRent = 0;
+        int carRent = 0;
 
         // Caution Deposit
 
@@ -135,16 +141,24 @@ public class BorrowerCart {
         // totalSecurity Deposit and rent
 
         try {
-            ResultSet bCar = dbConnector.excecuteSelect("v_rent, v_security_deposit", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
-            if(bCar != null && bCar.next()){
-                totalRent += Integer.parseInt(bCar.getString(1));
-                totalSecurityDeposit += Integer.parseInt(bCar.getString(2));
+            if(!CarId.equals("")){
+                ResultSet bCar = dbConnector.excecuteSelect("v_rent, v_security_deposit", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
+                if(bCar != null && bCar.next()){
+                    carRent = Integer.parseInt(bCar.getString(1));
+                    carSecurityDeposit = Integer.parseInt(bCar.getString(2));
+                    totalRent += carRent;
+                    totalSecurityDeposit += carSecurityDeposit;
+                }
             }
             
-            ResultSet bBike = dbConnector.excecuteSelect("v_rent, v_security_deposit", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
-            if(bBike != null && bBike.next()){
-                totalRent += Integer.parseInt(bBike.getString(1));
-                totalSecurityDeposit += Integer.parseInt(bBike.getString(2));
+            if(!BikeId.equals("")){
+                ResultSet bBike = dbConnector.excecuteSelect("v_rent, v_security_deposit", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
+                if(bBike != null && bBike.next()){
+                    bikeRent = Integer.parseInt(bBike.getString(1));
+                    bikeSecurityDeposit = Integer.parseInt(bBike.getString(2));
+                    totalRent += bikeRent;
+                    totalRent += bikeSecurityDeposit;
+                }
             }
 
         } catch (Exception e) {
@@ -157,8 +171,18 @@ public class BorrowerCart {
         System.out.println();
 
         System.out.println("Caution Deposit: "+cautionDeposit);
-        System.out.println("Total Rent: "+totalRent);
-        System.out.println("Total Security Deposit: "+totalSecurityDeposit);
+
+        if(!CarId.equals("")){
+            System.out.println("Car Rent: "+carRent);
+            System.out.println("Car Security Deposit: "+carSecurityDeposit);
+        }
+        if(!BikeId.equals("")){
+            System.out.println("Bike Rent: "+bikeRent);
+            System.out.println("Bike Security Deposit: "+bikeSecurityDeposit);
+        }
+
+        System.out.println("Total Rent: "+(carRent + bikeRent));
+        System.out.println("Total Security Deposit: "+(carSecurityDeposit + bikeSecurityDeposit));
 
         System.out.println();
         System.out.println("Total Amount : "+(cautionDeposit + totalRent + totalSecurityDeposit));
@@ -166,8 +190,21 @@ public class BorrowerCart {
         String option = console.readLine("Are you sure about that ? (Type yes) : ").toLowerCase();
 
         if(option.equals("yes")){
-            String paymentId = payment.addBorrowerPayment(borrowerId, cautionDeposit + totalRent + totalSecurityDeposit);
-            updateAllPaymentDetails(paymentId);
+            if(cautionDeposit != 0){
+                String cautionPaymentId = payment.addBorrowerPayment(borrowerId, null, cautionDeposit);
+                updateAllPaymentDetails(cautionPaymentId, 0);
+            }
+
+            if(!CarId.equals("")){
+                String carPaymentId = payment.addBorrowerPayment(borrowerId, CarId, carRent + carSecurityDeposit);
+                updateAllPaymentDetails(carPaymentId, 1);
+            }
+
+            if(!BikeId.equals("")){
+                String bikePaymentId = payment.addBorrowerPayment(borrowerId, BikeId, bikeRent + bikeSecurityDeposit);
+                updateAllPaymentDetails(bikePaymentId, 2);
+            }
+
             return true;
         }
 
@@ -176,12 +213,12 @@ public class BorrowerCart {
         }
     }
 
-    public void updateAllPaymentDetails(String paymentId){
+    public void updateAllPaymentDetails(String paymentId, int type){
 
-        // Updating borrower cart
+        // Updating borrower cart 
 
         try {
-            boolean updatePaymentBorrower = dbConnector.excecuteUpdate(borrowerCartTableName, "payment_id = "+paymentId, "borrower_id = "+borrowerId);
+            boolean updatePaymentBorrower = dbConnector.excecuteUpdate(borrowerCartTableName, "payment_status = true", "borrower_id = "+borrowerId);
         } catch (Exception e) {
             
         }
@@ -194,13 +231,17 @@ public class BorrowerCart {
         String tommorrow = sdf.format(new Date(System.currentTimeMillis() + 86400000));
 
         try {
-            boolean bikeUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+BikeId+"'");
-            boolean bikeRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+BikeId+"'");
-            boolean bikeReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+BikeId+"'");
+            if(type == 1){
+                boolean carUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+CarId+"'");
+                boolean carRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+CarId+"'");
+                boolean carReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+CarId+"'");
+            }
             
-            boolean carUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+CarId+"'");
-            boolean carRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+CarId+"'");
-            boolean carReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+CarId+"'");
+            if(type == 2){
+                boolean bikeUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+BikeId+"'");
+                boolean bikeRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+BikeId+"'");
+                boolean bikeReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+BikeId+"'");
+            }
         } catch (Exception e) {
             
         }
@@ -210,10 +251,15 @@ public class BorrowerCart {
         // Updating Rented Vehicle Details
 
         try {
-            String bikeValues = "('"+BikeId+"', "+borrowerId+", "+"0, 0, 2, 0)";
-            String CarValues = "('"+CarId+"', "+borrowerId+", "+"0, 0, 2, 0)";
-            boolean insertBike = dbConnector.excecuteInsert("rented_vehicles", bikeValues);
-            boolean insertCar = dbConnector.excecuteInsert("rented_vehicles", CarValues);
+            if(type == 1){
+                String CarValues = "('"+CarId+"', "+borrowerId+", "+"0, 0, 2, 0)";
+                boolean insertCar = dbConnector.excecuteInsert("rented_vehicles", CarValues);
+            }
+
+            if(type == 2){
+                String bikeValues = "('"+BikeId+"', "+borrowerId+", "+"0, 0, 2, 0)";
+                boolean insertBike = dbConnector.excecuteInsert("rented_vehicles", bikeValues);
+            }
         } catch (Exception e) {
             
         }
@@ -227,7 +273,8 @@ public class BorrowerCart {
 
         try {
             ResultSet checkPayment = dbConnector.excecuteSelect("payment_id, payment_status", "payment_details", "borrower_id = "+borrowerId, null, null, null);
-            if(checkPayment != null && checkPayment.next()){
+            boolean isPaid = false;
+            while(checkPayment != null && checkPayment.next()){
                 String paymentId = checkPayment.getString(1);
                 String paymentStatus = checkPayment.getString(2);
 
@@ -240,13 +287,12 @@ public class BorrowerCart {
                 }
 
                 else if(paymentStatus.equals("1")){
-                    return 1;
+                    isPaid = true;
                 }
 
-                else{
-                    return -1;
-                }
-
+            }
+            if(isPaid){
+                return 1;
             }
             else{
                 return -1;
@@ -405,7 +451,64 @@ public class BorrowerCart {
                     
                 }
 
-                // TODO: return or extend (return both for simplicity) extend ???
+                
+                System.out.println();
+                System.out.println("1. Return your Vehicles (R/r)");
+                System.out.println("2. Extend your rent (E/e)");
+                System.out.println();
+
+                int option = 0;
+
+                try {
+                    option = Integer.parseInt(console.readLine("Enter your option : "));
+                    if(option != 1 || option != 2){
+                        console.readLine("Invalid choice (Press Enter ...) ");
+                        clearScreen();
+                        loopLimiter++;
+                    }
+                } catch (Exception e) {
+                    console.readLine("Invalid choice (Press Enter ...) ");
+                    clearScreen();
+                    loopLimiter++;
+                }
+
+                // TODO: CONTINUE HERE Calculate fine in admin screen somehow 
+                
+                // Return 
+
+                if(option == 1){
+                    
+                    System.out.println();
+                    String vehicleId = console.readLine("Enter the vehicle id: ");
+                    ResultSet result = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"'", null, null, null);
+                    try {
+                        if(result != null && result.next()){
+
+                        }
+                        else{
+                            console.readLine("Invalid Vehicle Id (Press Enter ... )");
+                            clearScreen();
+                            loopLimiter++;
+                        }
+                    } catch (Exception e) {
+                        
+                    }
+
+                }
+
+                // Extend 
+
+                else if(option == 2){
+
+
+
+                }
+                
+                else{
+                    console.readLine("Invalid choice (Press Enter ...) ");
+                    clearScreen();
+                    loopLimiter++;
+                }
             }
         }
 
