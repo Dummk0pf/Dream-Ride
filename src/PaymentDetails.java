@@ -88,7 +88,7 @@ public class PaymentDetails {
                         ResultSet checkPaymentId = dbConnector.excecuteSelect("*", paymentDetailTableName, "payment_id = "+paymentId, null, null, null);
 
                         if(checkPaymentId != null && checkPaymentId.next()){
-                            String completeProcess = console.readLine("Are you sure about that ? (y/n)");
+                            String completeProcess = console.readLine("Are you sure about that ? (y/n): ");
 
                             if(completeProcess.length() != 1 || !"yn".contains(completeProcess)){
                                 loopLimiter++;
@@ -97,6 +97,13 @@ public class PaymentDetails {
                             }
 
                             if(completeProcess.equals("y")){
+                                if(!checkPaymentId.getString(3).equals("0")){
+                                    console.readLine("Payment Already Processed :) (Press Enter ... )");
+                                    loopLimiter++;
+                                    clearScreen();
+                                    continue;
+                                }
+
                                 int amountPending = 0;
                                 int paymentStatus = 0;
 
@@ -104,9 +111,13 @@ public class PaymentDetails {
                                 amountPending = Integer.parseInt(checkPaymentId.getString(4));
 
                                 boolean updateAmountPending = dbConnector.excecuteUpdate(paymentDetailTableName, "amount_pending = 0", "payment_id = "+paymentId);
-                                boolean updateAmountPaid = dbConnector.excecuteUpdate(paymentDetailTableName, "amount_pending = "+amountPending, "payment_id = "+paymentId);
+                                boolean updateAmountPaid = dbConnector.excecuteUpdate(paymentDetailTableName, "amount_paid = "+amountPending, "payment_id = "+paymentId);
                                 boolean updatePaymentStatus = dbConnector.excecuteUpdate(paymentDetailTableName, "payment_status = true", "payment_id = "+paymentId);
 
+                                console.readLine("Payment Processed (Press Enter) ... ");
+                                clearScreen();
+                                loopLimiter++;
+                                continue;
                             }
                         }
 

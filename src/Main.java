@@ -2,23 +2,33 @@ import java.io.Console;
 
 public class Main {
 
+    private static int LOOP_MAX_LIMIT = 1000;
+
     private static Console console = System.console();
     public static void main(String[] args) throws Exception {
-        
-        int option = choicePick();
-        
-        if(option == 1){
-            // Admin Side
-            AdminScreen adminScreen = new AdminScreen();
-            adminScreen.logIn();
+        int loopLimiter = 0;
+
+        while (loopLimiter < LOOP_MAX_LIMIT) {
+            int option = choicePick();
+            
+            if(option == 1){
+                // Admin Side
+                AdminScreen adminScreen = new AdminScreen();
+                adminScreen.logIn();
+            }
+            
+            else if(option == 2){
+                // Renter Side
+                BorrowerScreen borrowerScreen = new BorrowerScreen();
+                borrowerScreen.logIn();
+            }
+    
+            else if(option == 3){
+                clearScreen();
+                console.readLine("Press Enter to Continue ... ");
+                break;
+            }
         }
-        
-        else if(option == 2){
-            // Renter Side
-            BorrowerScreen borrowerScreen = new BorrowerScreen();
-            borrowerScreen.logIn();
-        }
-        
     }
     
     public static int choicePick(){
@@ -34,7 +44,8 @@ public class Main {
                 "");
         System.out.println("1. Admin");
         System.out.println("2. Renter");
-        System.out.print("Enter your choice(1/2): ");
+        System.out.println("3. Exit");
+        System.out.print("Enter your choice(1/2/3): ");
         
         int option = Integer.parseInt(console.readLine());
 

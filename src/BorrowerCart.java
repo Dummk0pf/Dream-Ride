@@ -489,15 +489,16 @@ public class BorrowerCart {
                 
                 
                 System.out.println();
-                System.out.println("1. Return your Vehicles (R/r)");
-                System.out.println("2. Extend your rent (E/e)");
+                System.out.println("1. Return your Vehicles ");
+                System.out.println("2. Extend your rent ");
+                System.out.println("3. Exit to Main Menu ");
                 System.out.println();
                 
                 int option = 0;
                 
                 try {
-                    option = Integer.parseInt(console.readLine("Enter your option : "));
-                    if(option != 1 || option != 2){
+                    option = Integer.parseInt(console.readLine("Enter your option (1/2/3) : "));
+                    if(option != 1 && option != 2 && option != 3){
                         console.readLine("Invalid choice (Press Enter ...) ");
                         clearScreen();
                         loopLimiter++;
@@ -520,7 +521,7 @@ public class BorrowerCart {
                             returnStatus = rTable.checkRentedReturnStatus(vehicleId);
 
                             if(returnStatus == 0){
-                                boolean updateReturnStatus = dbConnector.excecuteUpdate("rented_vehicles", "return_returned = 1", "v_id = '"+vehicleId+"'");
+                                boolean updateReturnStatus = dbConnector.excecuteUpdate("rented_vehicles", "rented_returned = 1", "v_id = '"+vehicleId+"'");
                                 if(updateReturnStatus){
                                     console.readLine("Vehicle Successfully returned Processing extra charges ... (Press Enter)");
                                     clearScreen();
@@ -598,6 +599,7 @@ public class BorrowerCart {
                                 dbConnector.excecuteUpdate("rented_vehicles", "extension = "+(extenCount-1), "v_id = '"+vehicleId+"'");
 
                                 console.readLine("Extra rent charges will be added to your final payment :) Enjoy your journey (Press Enter ... )");
+                                
                                 break;
                             }
 
@@ -606,6 +608,12 @@ public class BorrowerCart {
 
                     }
                     
+                }
+
+                else if(option == 3){
+                    console.readLine("Press Enter to Continue ... ");
+                    clearScreen();
+                    break;
                 }
                 
                 else{

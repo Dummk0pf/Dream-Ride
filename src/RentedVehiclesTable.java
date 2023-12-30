@@ -40,9 +40,11 @@ public class RentedVehiclesTable {
                     }
                     System.out.println();
                 }
+                System.out.println();
                 System.out.println("1. Calculate Fine Amount for Returned Vehicle (F/f) : ");
-                System.out.println("2. Extend Vehicle Rent (E/e) : ");
-                System.out.println("3. Exit to MainMenu (M/m) : ");
+                System.out.println("2. Exit to MainMenu (M/m) : ");
+                System.out.println();
+                System.out.println();
 
                 char choice = 'm';
                 
@@ -104,7 +106,7 @@ public class RentedVehiclesTable {
                             String check = console.readLine("Are you sure about the details ? (y/n)");
 
                             if(check.equals("y")){
-                                boolean updateDamageLevel = dbConnector.excecuteUpdate("rental_details", "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"'");
+                                boolean updateDamageLevel = dbConnector.excecuteUpdate(rentedVehiclesTableName, "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"'");
                                 if(updateDamageLevel){
                                     console.readLine("Successfully Entered :) Press Enter");
                                     break;
@@ -139,12 +141,6 @@ public class RentedVehiclesTable {
                     }
 
                     
-
-                }
-                
-                else if(choice == 'e'){
-
-
 
                 }
                 

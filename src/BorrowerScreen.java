@@ -49,8 +49,9 @@ public class BorrowerScreen {
                 clearScreen();
                 System.out.println("1. Sign In");
                 System.out.println("2. Sign Up");
+                System.out.println("3. Exit ");
                 
-                int option = Integer.parseInt(console.readLine("Enter your option (1/2) : "));
+                int option = Integer.parseInt(console.readLine("Enter your option (1/2/3) : "));
 
                 if(option == 1){
                     signIn();
@@ -63,6 +64,12 @@ public class BorrowerScreen {
                     clearScreen();
                     loopLimiter++;
                     continue;
+                }
+                
+                else if(option == 3){
+                    console.readLine("Press Enter to Continue ... ");
+                    clearScreen();
+                    return;
                 }
 
             } catch (Exception e) {

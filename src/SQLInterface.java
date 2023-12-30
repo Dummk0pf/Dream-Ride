@@ -49,7 +49,7 @@ public class SQLInterface {
             return result;
 
         } catch (SQLException e) {
-            System.out.println("Class: SQLInterface Method: excecuteSelect");
+            // System.out.println("Class: SQLInterface Method: excecuteSelect");
         }
         
         return null;
