@@ -73,6 +73,13 @@ public class RentedVehiclesTable {
                         ResultSet checkVehicle = dbConnector.excecuteSelect("*", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
 
                         if(checkVehicle != null && checkVehicle.next()){
+                            int returnStatus = checkRentedReturnStatus(vehicleId);
+                            if(returnStatus == 0){
+                                console.readLine("Vehicle Not returned yet (Press Enter) .. ");
+                                clearScreen();
+                                loopLimiter++;
+                                continue;
+                            }
                             String damage = "";
                             int damageLevel = 0;
                             int distanceTravelled = 0;
@@ -97,7 +104,7 @@ public class RentedVehiclesTable {
                             String check = console.readLine("Are you sure about the details ? (y/n)");
 
                             if(check.equals("y")){
-                                boolean updateDamageLevel = dbConnector.excecuteUpdate("rentanl_details", "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled, "v_id = '"+vehicleId+"'");
+                                boolean updateDamageLevel = dbConnector.excecuteUpdate("rental_details", "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"'");
                                 if(updateDamageLevel){
                                     console.readLine("Successfully Entered :) Press Enter");
                                     break;
@@ -156,6 +163,24 @@ public class RentedVehiclesTable {
         }
 
 
+    }
+
+    public int checkRentedReturnStatus(String vehicleId){
+
+        // Rented 0
+        // Return processing 1
+        // Return processed 2
+
+        try {
+            ResultSet check = dbConnector.excecuteSelect("rented_returned", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
+            if(check != null && check.next()){
+                int status = Integer.parseInt(check.getString(1));
+                return status;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
     }
 
     private void clearScreen(){
