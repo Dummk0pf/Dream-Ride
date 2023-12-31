@@ -90,7 +90,7 @@ public class PaymentDetails {
                         if(checkPaymentId != null && checkPaymentId.next()){
                             String completeProcess = console.readLine("Are you sure about that ? (y/n): ");
 
-                            if(completeProcess.length() != 1 || !"yn".contains(completeProcess)){
+                            if(completeProcess.length() != 1 || !"y".contains(completeProcess)){
                                 loopLimiter++;
                                 clearScreen();
                                 continue;

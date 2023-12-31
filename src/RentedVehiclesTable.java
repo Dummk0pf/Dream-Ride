@@ -32,7 +32,7 @@ public class RentedVehiclesTable {
             System.out.println();
 
             try {
-                ResultSet rentedVehicles = dbConnector.excecuteSelect("*", rentedVehiclesTableName, null, null, null, null);
+                ResultSet rentedVehicles = dbConnector.excecuteSelect("*", rentedVehiclesTableName, "rented_returned != 3", null, null, null);
     
                 while (rentedVehicles != null && rentedVehicles.next()) {
                     for (int i = 1; i <= 6; i++) {
@@ -43,7 +43,6 @@ public class RentedVehiclesTable {
                 System.out.println();
                 System.out.println("1. Calculate Fine Amount for Returned Vehicle (F/f) : ");
                 System.out.println("2. Exit to MainMenu (M/m) : ");
-                System.out.println();
                 System.out.println();
 
                 char choice = 'm';
@@ -72,8 +71,8 @@ public class RentedVehiclesTable {
                     String vehicleId = console.readLine("Enter a rented Vehicle Id : ");
 
                     try {
-                        ResultSet checkVehicle = dbConnector.excecuteSelect("*", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
-
+                        ResultSet checkVehicle = dbConnector.excecuteSelect("*", "rented_vehicles", "v_id = '"+vehicleId+"' AND rented_returned != 3", null, null, null);
+                        
                         if(checkVehicle != null && checkVehicle.next()){
                             int returnStatus = checkRentedReturnStatus(vehicleId);
                             if(returnStatus == 0){
@@ -96,14 +95,14 @@ public class RentedVehiclesTable {
                                 loopLimiter++;
                                 continue;
                             }
-
-                            damageLevel = damage.equals("l") ? 1 : 0;
-                            damageLevel = damage.equals("m") ? 2 : 0;
-                            damageLevel = damage.equals("h") ? 3 : 0;
+                            
+                            damageLevel = damage.equals("l") ? 1 : damageLevel;
+                            damageLevel = damage.equals("m") ? 2 : damageLevel;
+                            damageLevel = damage.equals("h") ? 3 : damageLevel;
 
                             distanceTravelled = Integer.parseInt(console.readLine("Enter the distance for the current trip ... "));
 
-                            String check = console.readLine("Are you sure about the details ? (y/n)");
+                            String check = console.readLine("Are you sure about the details ? (y/n) : ");
 
                             if(check.equals("y")){
                                 boolean updateDamageLevel = dbConnector.excecuteUpdate(rentedVehiclesTableName, "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"'");

@@ -279,6 +279,30 @@ public class BorrowerCart {
 
         // Updating borrower cart
         removeVehicle(vehicleId);
+        
+        if(BikeId.equals(vehicleId))
+        BikeId = "";
+        if(CarId.equals(vehicleId))
+        CarId = "";
+
+        // removing Payment Id
+        try {
+            dbConnector.excecuteDelete("payment_details", "borrower_id = "+borrowerId+" AND v_id = '"+vehicleId+"'");
+        } catch (Exception e) {
+            
+        }
+
+        if(BikeId.equals("") && CarId.equals("")){
+            try {
+                ResultSet cautionDepositId = dbConnector.excecuteSelect("payment_id", "payment_details", "borrower_id = "+borrowerId+" AND v_id is null", null, null, null);
+                if(cautionDepositId != null && cautionDepositId.next()){
+                    dbConnector.excecuteDelete("payment_details", "payment_id = "+cautionDepositId.getString(1));
+                }
+            } catch (Exception e) {
+                
+            }
+        }
+            
 
         // Updating vehicle Details Table
 
@@ -390,37 +414,47 @@ public class BorrowerCart {
                 char choice = option.charAt(0);
     
                 if(choice == 'r'){
+
+                    if(!CarId.equals("") || !BikeId.equals("")){
     
-                    String vehicleId = console.readLine("Enter the Vehicle Id : ");
-    
-                    ResultSet isPresent = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"' AND borrower_id = "+borrowerId, null, null, null);
-    
-                    try {
-                        if(isPresent != null && isPresent.next()){
-                            boolean resultDelete = removeVehicle(vehicleId);
-                            if(resultDelete){
-                                if(BikeId.equals(vehicleId))
-                                BikeId = "";
-                                if(CarId.equals(vehicleId))
-                                CarId = "";
-                                console.readLine("Vehicle Removed from cart ... (Press Enter)");
+                        String vehicleId = console.readLine("Enter the Vehicle Id : ");
+        
+                        ResultSet isPresent = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"' AND borrower_id = "+borrowerId, null, null, null);
+        
+                        try {
+                            if(isPresent != null && isPresent.next()){
+                                boolean resultDelete = removeVehicle(vehicleId);
+                                if(resultDelete){
+                                    if(BikeId.equals(vehicleId))
+                                    BikeId = "";
+                                    if(CarId.equals(vehicleId))
+                                    CarId = "";
+                                    console.readLine("Vehicle Removed from cart ... (Press Enter)");
+                                }
+                                else{
+                                    console.readLine("Sorry Please Try Again ... (Press Enter)");
+                                    loopLimiter++;
+                                }
+                                clearScreen();
+                                continue;
                             }
+        
                             else{
-                                console.readLine("Sorry Please Try Again ... (Press Enter)");
+                                console.readLine("Vehicle Id is Invalid .. (Press Enter)");
+                                clearScreen();
                                 loopLimiter++;
+                                continue;
                             }
-                            clearScreen();
-                            continue;
-                        }
-    
-                        else{
+                        } catch (Exception e) {
                             console.readLine("Vehicle Id is Invalid .. (Press Enter)");
                             clearScreen();
                             loopLimiter++;
                             continue;
                         }
-                    } catch (Exception e) {
-                        console.readLine("Vehicle Id is Invalid .. (Press Enter)");
+                    }
+
+                    else{
+                        console.readLine("No vehicles in your cart Press Enter ... ");
                         clearScreen();
                         loopLimiter++;
                         continue;
@@ -428,12 +462,21 @@ public class BorrowerCart {
                 }
     
                 else if(choice == 'b'){
-                    boolean result = bookVehicles();
-                    if(result){
-                        console.readLine("Booked Successfully :) Press enter to Exit ... ");
-                        break;
+                    if(!CarId.equals("") || !BikeId.equals("")){
+                        boolean result = bookVehicles();
+                        if(result){
+                            console.readLine("Booked Successfully :) Press enter to Exit ... ");
+                            break;
+                        }
+                        else{
+                            clearScreen();
+                            loopLimiter++;
+                            continue;
+                        }
                     }
+
                     else{
+                        console.readLine("No vehicles in your cart Press Enter ... ");
                         clearScreen();
                         loopLimiter++;
                         continue;
@@ -558,6 +601,7 @@ public class BorrowerCart {
 
                                 // Reupdate All tables
                                 reupdateAllTables(vehicleId);
+                                break;
                             }
                             
                         }
@@ -633,8 +677,8 @@ public class BorrowerCart {
         while (loopLimiter < LOOP_MAX_LIMIT) {
             int rent = 0;
             int security_deposit = 0;
-    
             int totalCharge = 0;
+            int returnAmount = 30_000;
     
             try {
                 ResultSet vehicle = dbConnector.excecuteSelect("v_rent, v_security_deposit", vehicleTableName, "v_id = '"+vehicleId+"'", null, null, null);
@@ -652,18 +696,18 @@ public class BorrowerCart {
             
             // Damage Amount Calculation
             if(damageLevel == 1){
-                totalCharge = (int) (totalCharge + (totalCharge * 0.2));
+                totalCharge = (int) (totalCharge * 0.2);
             }
             else if(damageLevel == 2){
-                totalCharge = (int) (totalCharge + (totalCharge * 0.5));
+                totalCharge = (int) (totalCharge * 0.5);
             }
             else if(damageLevel == 3){
-                totalCharge = (int) (totalCharge + (totalCharge * 0.75));
+                totalCharge = (int) (totalCharge * 0.75);
             }
     
             // Distance Travelled
             if(distanceTravelled > 500){
-                totalCharge = (int) (totalCharge + (totalCharge * 0.15));
+                totalCharge += (int) (totalCharge * 0.15);
             }
     
             System.out.println("Total Fine Amount : "+totalCharge);
@@ -674,20 +718,32 @@ public class BorrowerCart {
             try {
                 String options = console.readLine("Pay by Cash/Security Deposit (c/s) : ").toLowerCase();
                 if(options.length() != 1 || !("c/s".contains(options))){
-                    clearLine(1);
+                    console.readLine("Invalid Choice (Press Enter) .. ");
+                    clearScreen();
                     loopLimiter++;
                     continue;
                 }
 
                 if(options.equals("c")){
                     console.readLine("Cash Paid Successfully ... :) (Press Enter)");
+                    clearScreen();
                     return true;
                 }
-
+                
                 else if(options.equals("s")){
-                    boolean updateDeposit = dbConnector.excecuteUpdate("borrower_deposit", "borrower_accounts", "borrower_id = "+borrowerId);
-                    return updateDeposit;
+                    if(totalCharge< returnAmount){
+                        returnAmount -= totalCharge;
+                    }
+                    else{
+                        console.readLine("Total Fine Exceeds deposit Amount Remaining Amount of : "+(totalCharge - returnAmount)+" is to be paid in Cash (Press Enter to Continue ... )");
+                        returnAmount = 0;
+                    }
+                    clearScreen();
                 }
+                
+                boolean updateDeposit = dbConnector.excecuteUpdate("borrower_accounts", "borrower_deposit = "+returnAmount, "borrower_id = "+borrowerId);
+                return updateDeposit;
+
             } catch (Exception e) {
                 
             }

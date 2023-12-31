@@ -25,6 +25,7 @@ public class BorrowerTable {
         borrowerColumnNames.put(6, "borrower_aadhar_number");
         borrowerColumnNames.put(7, "borrower_driving_licence");
         borrowerColumnNames.put(8, "borrower_address");
+        borrowerColumnNames.put(9, "borrower_deposit");
     }
 
     public void displayAllBorrowers(){
@@ -135,6 +136,7 @@ public class BorrowerTable {
                 System.out.println("Aadhar Number: "+accountInfo.getString(6));
                 System.out.println("Driving Licence Number: "+accountInfo.getString(7));
                 System.out.println("Address: "+accountInfo.getString(8));
+                System.out.println("Deposit: "+accountInfo.getString(9));
             }
         } catch (SQLException e) {
             console.readLine("Sorry Please try again (Press Enter) ");
