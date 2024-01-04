@@ -3,7 +3,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class BorrowerScreen {
+public class BorrowerScreen implements Screen{
     
     private int LOOP_MAX_LIMIT = 2000;
     private String userid;
@@ -650,17 +650,6 @@ public class BorrowerScreen {
         }
     }
 
-    private void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
-        }
-    }
 }
 
 

@@ -1,7 +1,7 @@
 import java.io.Console;
 import java.sql.ResultSet;
 
-public class PaymentDetails {
+public class PaymentDetails implements Table{
     
     private SQLInterface dbConnector;
 
@@ -50,13 +50,15 @@ public class PaymentDetails {
             try {
                 ResultSet paymentDetails = dbConnector.excecuteSelect("*", paymentDetailTableName, null, null, null, null) ;
 
-                while(paymentDetails != null && paymentDetails.next()){
-                    for (int i = 1; i <= 6; i++) {
-                        System.out.print(paymentDetails.getString(i)+" ");
-                    }
+                displayTable(paymentDetails);
 
-                    System.out.println();
-                }
+                // while(paymentDetails != null && paymentDetails.next()){
+                //     for (int i = 1; i <= 6; i++) {
+                //         System.out.print(paymentDetails.getString(i)+" ");
+                //     }
+
+                //     System.out.println();
+                // }
 
                 char option = 'm';
 
@@ -110,9 +112,9 @@ public class PaymentDetails {
                                 paymentStatus = Integer.parseInt(checkPaymentId.getString(2));
                                 amountPending = Integer.parseInt(checkPaymentId.getString(4));
 
-                                boolean updateAmountPending = dbConnector.excecuteUpdate(paymentDetailTableName, "amount_pending = 0", "payment_id = "+paymentId);
-                                boolean updateAmountPaid = dbConnector.excecuteUpdate(paymentDetailTableName, "amount_paid = "+amountPending, "payment_id = "+paymentId);
-                                boolean updatePaymentStatus = dbConnector.excecuteUpdate(paymentDetailTableName, "payment_status = true", "payment_id = "+paymentId);
+                                dbConnector.excecuteUpdate(paymentDetailTableName, "amount_pending = 0", "payment_id = "+paymentId);
+                                dbConnector.excecuteUpdate(paymentDetailTableName, "amount_paid = "+amountPending, "payment_id = "+paymentId);
+                                dbConnector.excecuteUpdate(paymentDetailTableName, "payment_status = true", "payment_id = "+paymentId);
 
                                 console.readLine("Payment Processed (Press Enter) ... ");
                                 clearScreen();
@@ -145,16 +147,5 @@ public class PaymentDetails {
         }
     }
 
-    private void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
-        }
-    }
 
 }

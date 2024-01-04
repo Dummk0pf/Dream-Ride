@@ -3,6 +3,7 @@
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "d:\\Programming\\MySql\\Connector\\mysql-connector-j-8.2.0\\mysql-connector-j-8.2.0.jar"
+        "d:\\Programming\\MySql\\Connector\\mysql-connector-j-8.2.0\\mysql-connector-j-8.2.0.jar",
+        "d:\\Programming\\Java\\Libraries\\fliptables-1.1.0.jar"
     ]
 }

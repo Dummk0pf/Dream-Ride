@@ -1,9 +1,11 @@
+import java.io.Console;
 import java.sql.ResultSet;
 import java.util.HashMap;
 
-public class VehicleTable {
+public class VehicleTable implements Table{
     private SQLInterface dbConnector;
     private String vehicleTableName;
+    private Console console = System.console();
     private HashMap<Integer, String> vehicleTableColumns;
 
     public VehicleTable(){
@@ -34,18 +36,14 @@ public class VehicleTable {
         try {
             // TODO: Implement Table Design
 
-            ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, null, null, null, null);
+            ResultSet resultSet = dbConnector.excecuteSelect("*", vehicleTableName, null, null, null, null);   
+            
             System.out.println("Displaying Table");
             
-            while(result != null && result.next()){
-                for (int i = 1; i <= 11; i++) {
-                    System.out.print(result.getString(i)+" ");
-                }
-                System.out.println();
-            }
-            
+            displayTable(resultSet);
             
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Class: VehicleTable Method: displayAdminTable");
         }
         
@@ -68,24 +66,26 @@ public class VehicleTable {
             String whereCondition = "v_service_state = true AND v_borrower_id is null";
             
             ResultSet result = dbConnector.excecuteSelect(columnNames, vehicleTableName, whereCondition, null, null, null);
-            
-            while(result != null && result.next()){
-                for (int i = 1; i <= 6; i++) {
-                    System.out.print(result.getString(i)+" ");
-                }
-                System.out.println();
+
+            boolean printResult = displayTable(result);
+
+            if(!printResult){
+                console.readLine("Something went wrong Press Enter  ");
+                clearScreen();
             }
+            
+            // while(result != null && result.next()){
+            //     for (int i = 1; i <= 6; i++) {
+            //         System.out.print(result.getString(i)+" ");
+            //     }
+            //     System.out.println();
+            // }
             
         } catch (Exception e) {
             System.out.println("Class: VehicleTable Method: displayBorrowerTable");
             
         }
 
-    }
-
-    public void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 }
 

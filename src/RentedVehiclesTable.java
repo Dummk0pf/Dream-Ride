@@ -1,7 +1,7 @@
 import java.io.Console;
 import java.sql.ResultSet;
 
-public class RentedVehiclesTable {
+public class RentedVehiclesTable implements Table{
 
     private SQLInterface dbConnector;
 
@@ -34,12 +34,15 @@ public class RentedVehiclesTable {
             try {
                 ResultSet rentedVehicles = dbConnector.excecuteSelect("*", rentedVehiclesTableName, "rented_returned != 3", null, null, null);
     
-                while (rentedVehicles != null && rentedVehicles.next()) {
-                    for (int i = 1; i <= 6; i++) {
-                        System.out.print(rentedVehicles.getString(i)+" ");
-                    }
-                    System.out.println();
+                boolean printResult = displayTable(rentedVehicles);
+
+                if(!printResult){
+                    clearScreen();
+                    console.readLine("Something went wrong Press Enter  ");
+                    continue;
                 }
+                
+
                 System.out.println();
                 System.out.println("1. Calculate Fine Amount for Returned Vehicle (F/f) : ");
                 System.out.println("2. Exit to MainMenu (M/m) : ");
@@ -81,48 +84,65 @@ public class RentedVehiclesTable {
                                 loopLimiter++;
                                 continue;
                             }
-                            String damage = "";
-                            int damageLevel = 0;
-                            int distanceTravelled = 0;
-                            
-                            System.out.println();
-                            System.out.println();
-                            
-                            damage = console.readLine("Enter the Damage Level as Low/Medium/High (l/m/h) : ").toLowerCase();
 
-                            if(damage.length() != 1 && !"lmh".contains(damage)){
-                                clearScreen();
-                                loopLimiter++;
-                                continue;
-                            }
-                            
-                            damageLevel = damage.equals("l") ? 1 : damageLevel;
-                            damageLevel = damage.equals("m") ? 2 : damageLevel;
-                            damageLevel = damage.equals("h") ? 3 : damageLevel;
-
-                            distanceTravelled = Integer.parseInt(console.readLine("Enter the distance for the current trip ... "));
-
-                            String check = console.readLine("Are you sure about the details ? (y/n) : ");
-
-                            if(check.equals("y")){
-                                boolean updateDamageLevel = dbConnector.excecuteUpdate(rentedVehiclesTableName, "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"'");
-                                if(updateDamageLevel){
-                                    console.readLine("Successfully Entered :) Press Enter");
-                                    break;
+                            else if(returnStatus == 1){
+                                String damage = "";
+                                int damageLevel = 0;
+                                int distanceTravelled = 0;
+                                
+                                System.out.println();
+                                System.out.println();
+                                
+                                damage = console.readLine("Enter the Damage Level as Low/Medium/High (l/m/h) : ").toLowerCase();
+    
+                                if(damage.length() != 1 && !"lmh".contains(damage)){
+                                    clearScreen();
+                                    loopLimiter++;
+                                    continue;
+                                }
+                                
+                                damageLevel = damage.equals("l") ? 1 : damageLevel;
+                                damageLevel = damage.equals("m") ? 2 : damageLevel;
+                                damageLevel = damage.equals("h") ? 3 : damageLevel;
+    
+                                distanceTravelled = Integer.parseInt(console.readLine("Enter the distance for the current trip : "));
+    
+                                String check = console.readLine("Are you sure about the details ? (y/n) : ");
+    
+                                if(check.equals("y")){
+                                    boolean updateDamageLevel = dbConnector.excecuteUpdate(rentedVehiclesTableName, "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"' AND rented_returned != 3");
+                                    if(updateDamageLevel){
+                                        console.readLine("Successfully Entered :) Press Enter");
+                                        break;
+                                    }
+                                    else{
+                                        console.readLine("Something Went wrong Sorry :( Press Enter");
+                                        clearScreen();
+                                        loopLimiter++;
+                                        continue;
+                                    }
                                 }
                                 else{
-                                    console.readLine("Something Went wrong Sorry :( Press Enter");
                                     clearScreen();
                                     loopLimiter++;
                                     continue;
                                 }
                             }
 
-                            else{
+                            else if(returnStatus == 2){
+                                console.readLine("Fine already calculated (Press Enter to Continue ... )");
                                 clearScreen();
                                 loopLimiter++;
                                 continue;
                             }
+
+                            else{
+                                console.readLine("Invalid Vehicle Id :( (Press Enter)");
+                                clearScreen();
+                                loopLimiter++;
+                                continue;
+                            }
+
                         }
 
                         else{
@@ -160,14 +180,37 @@ public class RentedVehiclesTable {
 
     }
 
+    public void displayReturnedVehicles(){
+        clearScreen();
+
+        try {
+            ResultSet resultSet = dbConnector.excecuteSelect("*", rentedVehiclesTableName, "rented_returned = 3", null, null, null);
+
+            boolean printResult = displayTable(resultSet);
+
+            if(!printResult){
+                clearScreen();
+                console.readLine("Something Went wrong please try again .. (Press Enter))");
+                
+            }
+
+            console.readLine("Press Enter to exit  .. ");
+        } catch (Exception e) {
+            clearScreen();
+            console.readLine("Something Went wrong please try again .. (Press Enter))");
+        }
+
+    }
+
     public int checkRentedReturnStatus(String vehicleId){
 
         // Rented 0
         // Return processing 1
         // Return processed 2
+        // Rented previously 3
 
         try {
-            ResultSet check = dbConnector.excecuteSelect("rented_returned", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
+            ResultSet check = dbConnector.excecuteSelect("rented_returned", "rented_vehicles", "v_id = '"+vehicleId+"' AND rented_returned != 3", null, null, null);
             if(check != null && check.next()){
                 int status = Integer.parseInt(check.getString(1));
                 return status;
@@ -177,17 +220,4 @@ public class RentedVehiclesTable {
         }
         return 0;
     }
-
-    private void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
-        }
-    }
-
 }

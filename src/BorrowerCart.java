@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-public class BorrowerCart {
+public class BorrowerCart implements Table{
 
     private SQLInterface dbConnector;
     private PaymentDetails payment;
@@ -16,9 +16,11 @@ public class BorrowerCart {
     private String vehicleTableName;
     private String borrowerCartTableName;
     private HashMap<Integer, String> borrowerCartColumnName;
+
     private String CarId;
     private String BikeId;
     private String borrowerId;
+    
     private int paymentStatus;
     
     public BorrowerCart(String borrowerId){
@@ -228,7 +230,7 @@ public class BorrowerCart {
         // Updating borrower cart 
 
         try {
-            boolean updatePaymentBorrower = dbConnector.excecuteUpdate(borrowerCartTableName, "payment_status = true", "borrower_id = "+borrowerId);
+            dbConnector.excecuteUpdate(borrowerCartTableName, "payment_status = true", "borrower_id = "+borrowerId);
         } catch (Exception e) {
             
         }
@@ -242,15 +244,15 @@ public class BorrowerCart {
 
         try {
             if(type == 1){
-                boolean carUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+CarId+"'");
-                boolean carRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+CarId+"'");
-                boolean carReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+CarId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+CarId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+CarId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+CarId+"'");
             }
             
             if(type == 2){
-                boolean bikeUpdate = dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+BikeId+"'");
-                boolean bikeRentedDate = dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+BikeId+"'");
-                boolean bikeReturnDate = dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+BikeId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_borrower_id = "+borrowerId, "v_id = '"+BikeId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_rented_date = '"+today+"'", "v_id = '"+BikeId+"'");
+                dbConnector.excecuteUpdate("vehicle_details", "v_return_date = '"+tommorrow+"'", "v_id = '"+BikeId+"'");
             }
         } catch (Exception e) {
             
@@ -263,12 +265,12 @@ public class BorrowerCart {
         try {
             if(type == 1){
                 String CarValues = "('"+CarId+"', "+borrowerId+", "+"0, 0, 2, 0)";
-                boolean insertCar = dbConnector.excecuteInsert("rented_vehicles", CarValues);
+                dbConnector.excecuteInsert("rented_vehicles", CarValues);
             }
 
             if(type == 2){
                 String bikeValues = "('"+BikeId+"', "+borrowerId+", "+"0, 0, 2, 0)";
-                boolean insertBike = dbConnector.excecuteInsert("rented_vehicles", bikeValues);
+                dbConnector.excecuteInsert("rented_vehicles", bikeValues);
             }
         } catch (Exception e) {
             
@@ -294,7 +296,7 @@ public class BorrowerCart {
 
         if(BikeId.equals("") && CarId.equals("")){
             try {
-                ResultSet cautionDepositId = dbConnector.excecuteSelect("payment_id", "payment_details", "borrower_id = "+borrowerId+" AND v_id is null", null, null, null);
+                ResultSet cautionDepositId = dbConnector.excecuteSelect("payment_id", "payment_details", "borrower_id = "+borrowerId+" AND v_id = 'null'", null, null, null);
                 if(cautionDepositId != null && cautionDepositId.next()){
                     dbConnector.excecuteDelete("payment_details", "payment_id = "+cautionDepositId.getString(1));
                 }
@@ -371,26 +373,41 @@ public class BorrowerCart {
     
             while (loopLimiter < LOOP_MAX_LIMIT) {
                 
+                boolean printResultCar = false;
+                boolean printResultBike = false;
+
                 ResultSet carDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
                 try {
-                    if(carDetail != null && carDetail.next()){
-                        for (int i = 1; i <= 6; i++) {
-                            System.out.print(carDetail.getString(i)+" ");
-                        }
-                        System.out.println();
+                    printResultCar = displayTable(carDetail);
+
+                    if(!printResultBike && !printResultCar){
+                        clearScreen();
                     }
+
+                    // if(carDetail != null && carDetail.next()){
+                    //     for (int i = 1; i <= 6; i++) {
+                    //         System.out.print(carDetail.getString(i)+" ");
+                    //     }
+                    //     System.out.println();
+                    // }
                 } catch (SQLException e) {
                     
                 }
                 
                 ResultSet bikeDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
                 try {
-                    if(carDetail != null && bikeDetail.next()){
-                        for (int i = 1; i <= 6; i++) {
-                            System.out.print(bikeDetail.getString(i)+" ");
-                        }
-                        System.out.println();
+                    printResultBike = displayTable(bikeDetail);
+                    
+                    if(!printResultBike && !printResultCar){
+                        clearScreen();
                     }
+
+                    // if(carDetail != null && bikeDetail.next()){
+                    //     for (int i = 1; i <= 6; i++) {
+                    //         System.out.print(bikeDetail.getString(i)+" ");
+                    //     }
+                    //     System.out.println();
+                    // }
                 } catch (SQLException e) {
                     
                 }
@@ -504,32 +521,48 @@ public class BorrowerCart {
         else if(paymentStatus == 1){
             int loopLimiter = 0;
             int returnStatus = 0;
+
+            boolean printResultCar = false;
+            boolean printResultBike = false;
             
             while (loopLimiter < LOOP_MAX_LIMIT) {
                 ResultSet carDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+CarId+"'", null, null, null);
                 try {
-                    if(carDetail != null && carDetail.next()){
-                        for (int i = 1; i <= 6; i++) {
-                            System.out.print(carDetail.getString(i)+" ");
-                        }
-                        System.out.println();
+                    printResultCar = displayTable(carDetail);
+
+                    if(!printResultCar && !printResultBike){
+                        clearScreen();
+                        break;
                     }
+                    // if(carDetail != null && carDetail.next()){
+                        //     for (int i = 1; i <= 6; i++) {
+                    //         System.out.print(carDetail.getString(i)+" ");
+                    //     }
+                    //     System.out.println();
+                    // }
                 } catch (SQLException e) {
                     
                 }
                 
                 ResultSet bikeDetail = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_rent, v_security_deposit, v_type", vehicleTableName, "v_id = '"+BikeId+"'", null, null, null);
+
                 try {
-                    if(carDetail != null && bikeDetail.next()){
-                        for (int i = 1; i <= 6; i++) {
-                            System.out.print(bikeDetail.getString(i)+" ");
-                        }
-                        System.out.println();
+                    printResultBike = displayTable(bikeDetail);
+
+                    if(!printResultBike && !printResultCar){
+                        clearScreen();
+                        break;
                     }
+                    // if(carDetail != null && bikeDetail.next()){
+                    //     for (int i = 1; i <= 6; i++) {
+                    //         System.out.print(bikeDetail.getString(i)+" ");
+                    //     }
+                    //     System.out.println();
+                    // }
                 } catch (SQLException e) {
                     
                 }
-                
+                 
                 
                 System.out.println();
                 System.out.println("1. Return your Vehicles ");
@@ -564,7 +597,7 @@ public class BorrowerCart {
                             returnStatus = rTable.checkRentedReturnStatus(vehicleId);
 
                             if(returnStatus == 0){
-                                boolean updateReturnStatus = dbConnector.excecuteUpdate("rented_vehicles", "rented_returned = 1", "v_id = '"+vehicleId+"'");
+                                boolean updateReturnStatus = dbConnector.excecuteUpdate("rented_vehicles", "rented_returned = 1", "v_id = '"+vehicleId+"' AND rented_returned != 3");
                                 if(updateReturnStatus){
                                     console.readLine("Vehicle Successfully returned Processing extra charges ... (Press Enter)");
                                     clearScreen();
@@ -629,24 +662,41 @@ public class BorrowerCart {
                     ResultSet result = dbConnector.excecuteSelect("v_id", borrowerCartTableName, "v_id = '"+vehicleId+"'", null, null, null);
                     try {
                         if(result != null && result.next()){
-                            
-                            ResultSet extensionCount = dbConnector.excecuteSelect("extension", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
-                            while(extensionCount != null && extensionCount.next()){
-                                int extenCount = Integer.parseInt(extensionCount.getString(1));
-                                if(extenCount <= 0){
-                                    console.readLine("Cannot extend beyond 2 times Please Return the vehicle ... (Press Enter)");
+                            returnStatus = rTable.checkRentedReturnStatus(vehicleId);
+
+                            if(returnStatus == 0){
+                                ResultSet extensionCount = dbConnector.excecuteSelect("extension", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
+                                while(extensionCount != null && extensionCount.next()){
+                                    int extenCount = Integer.parseInt(extensionCount.getString(1));
+                                    if(extenCount <= 0){
+                                        console.readLine("Cannot extend beyond 2 times Please Return the vehicle ... (Press Enter)");
+                                        clearScreen();
+                                        loopLimiter++;
+                                        continue;
+                                    }
+    
+                                    dbConnector.excecuteUpdate("rented_vehicles", "extension = "+(extenCount-1), "v_id = '"+vehicleId+"'");
+    
+                                    console.readLine("Extra rent charges will be added to your final payment :) Enjoy your journey (Press Enter ... )");
                                     clearScreen();
-                                    loopLimiter++;
-                                    continue;
-                                }
-
-                                dbConnector.excecuteUpdate("rented_vehicles", "extension = "+(extenCount-1), "v_id = '"+vehicleId+"'");
-
-                                console.readLine("Extra rent charges will be added to your final payment :) Enjoy your journey (Press Enter ... )");
-                                
-                                break;
+                                    break;
+                                }                              
                             }
 
+                            else if(returnStatus == 1 || returnStatus == 2){
+                                console.readLine("Vehicle Already Returned :( (Press Enter) ... ");
+                                clearScreen();
+                                loopLimiter++;
+                                continue;
+                            }
+
+                        }
+
+                        else{
+                            console.readLine("Invalid Vehicle Id (Press Enter ... )");
+                            clearScreen();
+                            loopLimiter++;
+                            continue;
                         }
                     } catch(Exception e){
 
@@ -692,6 +742,16 @@ public class BorrowerCart {
                 console.readLine("Vehicle Id does not exist (Press enter ... )");
                 return false;
             }
+
+            try {
+                ResultSet deposit = dbConnector.excecuteSelect("borrower_deposit", "borrower_accounts", "borrower_id = "+borrowerId, null, null, null);
+                if(deposit != null && deposit.next()){
+                    int oldDeposit = Integer.parseInt(deposit.getString(1));
+                    returnAmount = oldDeposit == 0 ? 30_000 : oldDeposit;
+                }
+            } catch (Exception e) {
+                
+            }
     
             
             // Damage Amount Calculation
@@ -719,15 +779,12 @@ public class BorrowerCart {
                 String options = console.readLine("Pay by Cash/Security Deposit (c/s) : ").toLowerCase();
                 if(options.length() != 1 || !("c/s".contains(options))){
                     console.readLine("Invalid Choice (Press Enter) .. ");
-                    clearScreen();
-                    loopLimiter++;
-                    continue;
+                    return false;
                 }
 
                 if(options.equals("c")){
                     console.readLine("Cash Paid Successfully ... :) (Press Enter)");
                     clearScreen();
-                    return true;
                 }
                 
                 else if(options.equals("s")){
@@ -755,15 +812,4 @@ public class BorrowerCart {
         return true;
     }
 
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
-        }
-    }
-
-    public void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
 }

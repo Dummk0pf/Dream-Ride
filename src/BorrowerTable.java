@@ -3,7 +3,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class BorrowerTable {
+public class BorrowerTable implements Table{
 
     private int LOOP_MAX_LIMIT = 2000;
     private SQLInterface dbConnnector;
@@ -34,12 +34,13 @@ public class BorrowerTable {
         ResultSet allBorrowers = dbConnnector.excecuteSelect("*", borrowerTableName, null, null, null, null);
 
         try {
-            while(allBorrowers != null && allBorrowers.next()){
-                for(int i=1;i<=8;i++){
-                    System.out.print(allBorrowers.getString(i)+" ");
-                }
-                System.out.println();
-            }
+            displayTable(allBorrowers);
+            // while(allBorrowers != null && allBorrowers.next()){
+            //     for(int i=1;i<=8;i++){
+            //         System.out.print(allBorrowers.getString(i)+" ");
+            //     }
+            //     System.out.println();
+            // }
         } catch (SQLException e) {
             console.readLine("Sorry Please try again :( (Press enter) ");
             return;
@@ -128,16 +129,23 @@ public class BorrowerTable {
         ResultSet accountInfo = dbConnnector.excecuteSelect("*", borrowerTableName, borrowerColumnNames.get(1)+" = "+borrowerId, null, null, null);
 
         try {
-            if(accountInfo.next()){
-                System.out.println("UserName: "+accountInfo.getString(2));
-                System.out.println("Password: "+accountInfo.getString(3));
-                System.out.println("Name: "+accountInfo.getString(4));
-                System.out.println("Phone Number: "+accountInfo.getString(5));
-                System.out.println("Aadhar Number: "+accountInfo.getString(6));
-                System.out.println("Driving Licence Number: "+accountInfo.getString(7));
-                System.out.println("Address: "+accountInfo.getString(8));
-                System.out.println("Deposit: "+accountInfo.getString(9));
+            boolean printResult = displayTable(accountInfo);
+
+            if(!printResult){
+                console.readLine("Something went wrong Press Enter ");
+                clearScreen();
+                return false;
             }
+            // if(accountInfo.next()){
+            //     System.out.println("UserName: "+accountInfo.getString(2));
+            //     System.out.println("Password: "+accountInfo.getString(3));
+            //     System.out.println("Name: "+accountInfo.getString(4));
+            //     System.out.println("Phone Number: "+accountInfo.getString(5));
+            //     System.out.println("Aadhar Number: "+accountInfo.getString(6));
+            //     System.out.println("Driving Licence Number: "+accountInfo.getString(7));
+            //     System.out.println("Address: "+accountInfo.getString(8));
+            //     System.out.println("Deposit: "+accountInfo.getString(9));
+            // }
         } catch (SQLException e) {
             console.readLine("Sorry Please try again (Press Enter) ");
             clearLine(1);
@@ -205,18 +213,6 @@ public class BorrowerTable {
 
         }
         return false;
-    }
-
-    private void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
-        }
     }
 
 }

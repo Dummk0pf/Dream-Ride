@@ -3,7 +3,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class AdminScreen {
+public class AdminScreen implements Table{
 
     private int LOOP_MAX_LIMIT = 2000;
     private String admin_username = "";
@@ -19,7 +19,6 @@ public class AdminScreen {
     private HashMap<Integer, String> vehicleTableColumns;
     private String vehicleTableName;
     private String adminTableName;
-    private String borrowerTableName;
 
     public AdminScreen(){
         dbConnector = new SQLInterface();
@@ -28,7 +27,6 @@ public class AdminScreen {
         pTable = new PaymentDetails();
         rTable = new RentedVehiclesTable();
 
-        borrowerTableName = "borrower_accounts";
         vehicleTableName = "vehicle_details";
         adminTableName = "admin_accounts";
 
@@ -47,11 +45,13 @@ public class AdminScreen {
         vehicleTableColumns.put(11, "v_return_date");
 
     }
+   
     
     public void logIn(){
         signIn();
         tableOptions();
     }
+
 
     private void signIn(){
         clearScreen();
@@ -79,6 +79,7 @@ public class AdminScreen {
         }
 
     }
+
 
     private void tableOptions() {
         int loopLimiter = 0;
@@ -140,7 +141,8 @@ public class AdminScreen {
             }
             
             else if(option == 'v'){
-                
+                rTable.displayReturnedVehicles();
+                vTable.displayAdminTable();
             }
             
             else if(option == 'c'){
@@ -167,7 +169,6 @@ public class AdminScreen {
         }
 
     }
-
 
 
     private void addVehicle() {
@@ -224,7 +225,6 @@ public class AdminScreen {
         }
         
     }
-
 
     
     private void modifyVehicle() {
@@ -408,8 +408,9 @@ public class AdminScreen {
         
                 ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, searchColumn+" = "+searchValue, null, null, null);
 
+                boolean printResult = displayTable(result);
 
-                if(result == null || !result.next()){
+                if(!printResult){
                     console.readLine("Vehicle is not available (Press enter): ");
                     clearLine(3);
                     loopLimiter++;
@@ -418,19 +419,11 @@ public class AdminScreen {
 
                 System.out.println();
 
-                do {
-                    for (int i = 0; i < 11; i++) {
-                        System.out.print(result.getString(i+1)+" ");
-                    }
-                    System.out.println();
-                } while (result.next());
-
-                System.out.println();
-
                 console.readLine("Press Enter ... ");
                 break;
 
             } catch (Exception e) {
+                e.printStackTrace();
                 clearLine(1);
                 loopLimiter++;
             }
@@ -475,22 +468,14 @@ public class AdminScreen {
         
                 ResultSet result = dbConnector.excecuteSelect("*", vehicleTableName, null, null, null, sortColumn);
     
+                boolean printResult = displayTable(result);
     
-                if(result == null || !result.next()){
+                if(!printResult){
                     console.readLine("Vehicles are not available (Press enter): ");
                     clearLine(3);
                     loopLimiter++;
                     continue;
                 }
-    
-                System.out.println();
-    
-                do {
-                    for (int i = 0; i < 11; i++) {
-                        System.out.print(result.getString(i+1)+" ");
-                    }
-                    System.out.println();
-                } while (result.next());
     
                 System.out.println();
 
@@ -502,21 +487,6 @@ public class AdminScreen {
                 loopLimiter++;
             }
     
-        }
-
-
-
-    }
-
-    private void clearScreen(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void clearLine(int lineCount){
-        for (int i = 0; i < lineCount; i++) {
-            System.out.print(String.format("\033[%dA",1));
-            System.out.print("\033[2K");
         }
     }
 }
