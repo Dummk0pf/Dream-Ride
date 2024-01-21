@@ -1,9 +1,9 @@
 import java.io.Console;
+import java.util.Date;
+import java.util.HashMap;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 
 public class BorrowerCart implements Table{
 
@@ -178,19 +178,19 @@ public class BorrowerCart implements Table{
         }
         System.out.println();
         System.out.println();
-        System.out.println("Your Total Bill : ");
+        System.out.println("Your Total Bill       : ");
         System.out.println();
         System.out.println();
 
-        System.out.println("Caution Deposit: "+cautionDeposit);
+            System.out.println("Caution Deposit       : "+cautionDeposit);
 
         if(!CarId.equals("")){
-            System.out.println("Car Rent: "+carRent);
-            System.out.println("Car Security Deposit: "+carSecurityDeposit);
+            System.out.println("Car Rent              : "+carRent);
+            System.out.println("Car Security Deposit  : "+carSecurityDeposit);
         }
         if(!BikeId.equals("")){
-            System.out.println("Bike Rent: "+bikeRent);
-            System.out.println("Bike Security Deposit: "+bikeSecurityDeposit);
+            System.out.println("Bike Rent             : "+bikeRent);
+            System.out.println("Bike Security Deposit : "+bikeSecurityDeposit);
         }
 
         System.out.println("Total Rent: "+(carRent + bikeRent));
@@ -277,7 +277,37 @@ public class BorrowerCart implements Table{
         }
     }
 
-    public void reupdateAllTables(String vehicleId){
+    public void reupdateAllTables(String vehicleId, int distanceTravelled){
+
+        // Updating vechicle_details for servicing
+
+        try{
+
+            int initalDistance = 0;
+
+            ResultSet vehicleDetails = dbConnector.excecuteSelect("v_total_distance", vehicleTableName, "v_id = '"+vehicleId+"'", null, null, null);
+
+            if(vehicleDetails != null && vehicleDetails.next()){
+                initalDistance = Integer.parseInt(vehicleDetails.getString(1));
+            }
+
+            if(vehicleId.equals(CarId)){
+                if(initalDistance + distanceTravelled >= 3000){
+                    dbConnector.excecuteUpdate(vehicleTableName, "v_service_state = false", "v_id = '"+vehicleId+"'");
+                }
+            }
+
+            if(vehicleId.equals(BikeId)){
+                if(initalDistance + distanceTravelled >= 1500){
+                    dbConnector.excecuteUpdate(vehicleTableName, "v_service_state = false", "v_id = '"+vehicleId+"'");
+                }
+            }
+
+            dbConnector.excecuteUpdate(vehicleTableName, "v_total_distance = "+(initalDistance + distanceTravelled), "v_id = '"+vehicleId+"'");
+
+        } catch(Exception e){
+
+        }
 
         // Updating borrower cart
         removeVehicle(vehicleId);
@@ -532,7 +562,6 @@ public class BorrowerCart implements Table{
 
                     if(!printResultCar && !printResultBike){
                         clearScreen();
-                        break;
                     }
                     // if(carDetail != null && carDetail.next()){
                         //     for (int i = 1; i <= 6; i++) {
@@ -613,13 +642,16 @@ public class BorrowerCart implements Table{
                             }
 
                             else if(returnStatus == 2){
+                                int damageLevel = 0;
+                                int distanceTravelled = 0;
+                                int extension = 0;
                                 try {
-                                    ResultSet fineParameters = dbConnector.excecuteSelect("damage_level, distance_travelled, extension", "rented_vehicles", "v_id = '"+vehicleId+"'", null, null, null);
+                                    ResultSet fineParameters = dbConnector.excecuteSelect("damage_level, distance_travelled, extension", "rented_vehicles", "v_id = '"+vehicleId+"' AND rented_returned != 3", null, null, null);
 
                                     while(fineParameters != null && fineParameters.next()){
-                                        int damageLevel = Integer.parseInt(fineParameters.getString(1));
-                                        int distanceTravelled = Integer.parseInt(fineParameters.getString(2));
-                                        int extension = Integer.parseInt(fineParameters.getString(3));
+                                        damageLevel = Integer.parseInt(fineParameters.getString(1));
+                                        distanceTravelled = Integer.parseInt(fineParameters.getString(2));
+                                        extension = Integer.parseInt(fineParameters.getString(3));
 
                                         boolean fineResult = fineAmountPayment(vehicleId, damageLevel, distanceTravelled, extension);
                                         if(!fineResult){
@@ -633,8 +665,11 @@ public class BorrowerCart implements Table{
                                 }
 
                                 // Reupdate All tables
-                                reupdateAllTables(vehicleId);
+                                // TODO: Here
+
+                                reupdateAllTables(vehicleId, distanceTravelled);
                                 break;
+
                             }
                             
                         }
@@ -677,7 +712,7 @@ public class BorrowerCart implements Table{
     
                                     dbConnector.excecuteUpdate("rented_vehicles", "extension = "+(extenCount-1), "v_id = '"+vehicleId+"'");
     
-                                    console.readLine("Extra rent charges will be added to your final payment :) Enjoy your journey (Press Enter ... )");
+                                    console.readLine("Extra rent charges will be added to your final payment :) Enjoy your journey (Press Enter ... ) ");
                                     clearScreen();
                                     break;
                                 }                              
@@ -779,11 +814,13 @@ public class BorrowerCart implements Table{
                 String options = console.readLine("Pay by Cash/Security Deposit (c/s) : ").toLowerCase();
                 if(options.length() != 1 || !("c/s".contains(options))){
                     console.readLine("Invalid Choice (Press Enter) .. ");
-                    return false;
+                    loopLimiter++;
+                    clearLine(5);
+                    continue;
                 }
 
                 if(options.equals("c")){
-                    console.readLine("Cash Paid Successfully ... :) (Press Enter)");
+                    console.readLine("Cash Paid Successfully ... :) (Press Enter) .. ");
                     clearScreen();
                 }
                 

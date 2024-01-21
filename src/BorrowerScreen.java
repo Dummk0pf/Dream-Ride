@@ -327,12 +327,11 @@ public class BorrowerScreen implements Screen{
             int paymentStatus = bCart.getPaymentStatus();
             
             System.out.println("Add a vehicle to the Cart (A/a) : ");
-            System.out.println("View your cart (C/c) : ");
-            System.out.println("View your account (V/v) : ");
-            System.out.println("Quit Application (Q/q) : ");
+            System.out.println("View your cart (C/c)            : ");
+            System.out.println("View your account (V/v)         : ");
+            System.out.println("Quit Application (Q/q)          : ");
 
             try {
-                
                 String options = console.readLine("Enter your Action: ").toLowerCase();
                 if(options.length() != 1 || !"acvq".contains(options)){
                     console.readLine("Invalid Option :( (Press Enter) : ");
@@ -409,7 +408,7 @@ public class BorrowerScreen implements Screen{
                             try {
                                 addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car'", null, null, null);
+                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car' AND v_service_state = true", null, null, null);
 
                                 if(isPresent != null && isPresent.next()){
                                     boolean isAdded = bCart.addVehicle(0, addVehicleId);
@@ -452,7 +451,7 @@ public class BorrowerScreen implements Screen{
                         try {
                             addVehicleId = console.readLine("Enter the vehicle Id: ");
                             
-                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car'", null, null, null);
+                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Car' AND v_service_state = true", null, null, null);
                             
                             if(isPresent != null && isPresent.next()){
                                 boolean isAdded = bCart.addVehicle(0, addVehicleId);
@@ -521,7 +520,7 @@ public class BorrowerScreen implements Screen{
                             try {
                                 addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike'", null, null, null);
+                                ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike' AND v_service_state = true", null, null, null);
 
                                 if(isPresent != null && isPresent.next()){
                                     boolean isAdded = bCart.addVehicle(1, addVehicleId);
@@ -565,7 +564,7 @@ public class BorrowerScreen implements Screen{
                         try {
                             addVehicleId = console.readLine("Enter the vehicle Id: ");
 
-                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike'", null, null, null);
+                            ResultSet isPresent = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+addVehicleId+"' AND v_type = 'Bike' AND v_service_state = true", null, null, null);
 
                             if(isPresent != null && isPresent.next()){
                                 boolean isAdded = bCart.addVehicle(1, addVehicleId);

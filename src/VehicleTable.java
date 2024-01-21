@@ -7,6 +7,7 @@ public class VehicleTable implements Table{
     private String vehicleTableName;
     private Console console = System.console();
     private HashMap<Integer, String> vehicleTableColumns;
+    private int LOOP_MAX_LIMIT = 1000;
 
     public VehicleTable(){
         dbConnector = new SQLInterface();
@@ -31,8 +32,6 @@ public class VehicleTable implements Table{
 
         clearScreen();
 
-        
-        
         try {
             // TODO: Implement Table Design
 
@@ -46,7 +45,6 @@ public class VehicleTable implements Table{
             e.printStackTrace();
             System.out.println("Class: VehicleTable Method: displayAdminTable");
         }
-        
         
     }
     
@@ -74,18 +72,66 @@ public class VehicleTable implements Table{
                 clearScreen();
             }
             
-            // while(result != null && result.next()){
-            //     for (int i = 1; i <= 6; i++) {
-            //         System.out.print(result.getString(i)+" ");
-            //     }
-            //     System.out.println();
-            // }
-            
         } catch (Exception e) {
             System.out.println("Class: VehicleTable Method: displayBorrowerTable");
             
         }
 
+    }
+
+    public void displayUnServicedTable(){
+        int loopLimiter = 0;
+
+        while(loopLimiter < LOOP_MAX_LIMIT){
+
+            clearScreen();
+            
+            try {
+                ResultSet vehicles = dbConnector.excecuteSelect("v_id, v_name, v_numberplate, v_type", vehicleTableName, "v_service_state = false", null, null, null);
+                
+                System.out.println("Displaying Unserviced vehicles ");
+
+                displayTable(vehicles);
+
+                System.out.println("1. Service Vehicles : ");
+                System.out.println("2. Exit             : ");
+
+                int choice = Integer.parseInt(console.readLine("Enter your choice (1/2) : "));
+
+                if(choice == 1){
+                    String vehicleId = console.readLine("Enter the vehicle id : ");
+
+                    ResultSet checkVId = dbConnector.excecuteSelect("v_id", vehicleTableName, "v_id = '"+vehicleId+"' and v_service_state = false", null, null, null);
+
+                    if(checkVId != null && checkVId.next()){
+                        
+                        dbConnector.excecuteUpdate(vehicleTableName, "v_total_distance = 0", "v_id = '"+vehicleId+"'");
+                        dbConnector.excecuteUpdate(vehicleTableName, "v_service_state = true", "v_id = '"+vehicleId+"'");
+
+                        console.readLine("Vehicle Serviced Successfully :) (Press Enter) ");
+                        continue;
+                    }
+                    else{
+                        console.readLine("Invalid Vehicle Id (Press Enter) .. ");
+                        loopLimiter++;
+                        continue;
+                    }
+                }
+                
+                else if(choice == 2){
+                    return;
+                }
+
+                else{
+                    console.readLine("Invalid Choice (Press Enter) .. ");
+                    loopLimiter++;
+                    continue;
+                }
+                    
+            } catch (Exception e) {
+                console.readLine("Error Occurred in database (Press Enter) : ");
+            }    
+        }
     }
 }
 

@@ -88,16 +88,17 @@ public class AdminScreen implements Table{
 
             System.out.println();
 
-            System.out.println("Search a Vehicle (S/s) : ");
-            System.out.println("Sort by (T/t) : ");
-            System.out.println("Add a Vehicle (A/a) : ");
-            System.out.println("Remove a Vehicle (R/r) : ");
-            System.out.println("Modify Vehicle Details (M/m) : ");
+            System.out.println("Search a Vehicle          (S/s) : ");
+            System.out.println("Sort by                   (T/t) : ");
+            System.out.println("Add a Vehicle             (A/a) : ");
+            System.out.println("Modify Vehicle Details    (M/m) : ");
+            System.out.println("Remove a Vehicle          (R/r) : ");
             System.out.println("View Previous Rented Cars (V/v) : ");
-            System.out.println("View Current Rented Cars (C/c) : ");
-            System.out.println("View All Borrowers (B/b) : ");
-            System.out.println("View All Payment Records (P/p) ");
-            System.out.println("Quit Application (Q/q) : ");
+            System.out.println("View Current Rented Cars  (C/c) : ");
+            System.out.println("View Borrowers            (B/b) : ");
+            System.out.println("View Payment Records      (P/p) : ");
+            System.out.println("View Unserviced Vehicles  (U/u) : ");
+            System.out.println("Quit Application          (Q/q) : ");
 
             System.out.println();
     
@@ -113,63 +114,60 @@ public class AdminScreen implements Table{
                 continue;
                 option = Character.toLowerCase(action.charAt(0));
 
-            } while (!("mqstarvcbp".contains(option+"")));
+            } while (!("mqstarvcbpu".contains(option+"")));
     
             if(option == 'a'){
                 addVehicle();
-                vTable.displayAdminTable();
             }
             
             else if(option == 'r'){
                 removeVehicle();
-                vTable.displayAdminTable();
             }
             
             else if(option == 'm'){
                 modifyVehicle();
-                vTable.displayAdminTable();
             }
     
             else if(option == 's'){
                 searchVehicle();
-                vTable.displayAdminTable();
             }
     
             else if(option == 't'){
                 sortVehicles();
-                vTable.displayAdminTable();
             }
             
             else if(option == 'v'){
                 rTable.displayReturnedVehicles();
-                vTable.displayAdminTable();
             }
             
             else if(option == 'c'){
+                // TODO: bug
                 rTable.displayAdminRentedTable();
-                vTable.displayAdminTable();
             }
             
             else if(option == 'b'){
                 bTable.displayAllBorrowers();
-                vTable.displayAdminTable();
             }
 
             else if(option == 'p'){
                 pTable.displayAdminPaymentDetails();
-                vTable.displayAdminTable();
             }
-    
+
+            else if(option == 'u'){
+                vTable.displayUnServicedTable();
+            }
+            
             else if(option == 'q'){
                 console.readLine("Press Enter to Continue ... ");
                 break;
             }
+            
+            vTable.displayAdminTable();
 
             loopLimiter++;
         }
 
     }
-
 
     private void addVehicle() {
         
@@ -185,13 +183,13 @@ public class AdminScreen implements Table{
             
             vehicleInfo.append("(");
             
-            vehicleInfo.append("\""+console.readLine("Vehicle ID : ")+"\",");
-            vehicleInfo.append("\""+console.readLine("Vehicle Name : ")+"\",");
-            vehicleInfo.append("\""+console.readLine("Vehicle NumberPlate : ")+"\",");
+            vehicleInfo.append("\""+console.readLine("Vehicle ID              : ")+"\",");
+            vehicleInfo.append("\""+console.readLine("Vehicle Name            : ")+"\",");
+            vehicleInfo.append("\""+console.readLine("Vehicle NumberPlate     : ")+"\",");
             vehicleInfo.append("\""+console.readLine("Vehicle Type (Bike/Car) : ")+"\",");
-            vehicleInfo.append(console.readLine("Vehicle Rent : ")+",");
+            vehicleInfo.append(console.readLine("Vehicle Rent              : ")+",");
             vehicleInfo.append("0"+",");
-            vehicleInfo.append(console.readLine("Vehicle Security Deposit : ")+",");
+            vehicleInfo.append(console.readLine("Vehicle Security Deposit  : ")+",");
             vehicleInfo.append("true"+",");
             vehicleInfo.append("null"+",");
             vehicleInfo.append("null"+",");
@@ -225,7 +223,6 @@ public class AdminScreen implements Table{
         }
         
     }
-
     
     private void modifyVehicle() {
 
@@ -265,8 +262,6 @@ public class AdminScreen implements Table{
             System.out.println("06. Vehicle Security Deposit");
             System.out.println("07. Vehicle Service State");
             System.out.println("08. Vehicle Borrower ID");
-            System.out.println("09. Vehicle Rented Date");
-            System.out.println("10. Vehicle Return Date");
             System.out.println();
 
             int columnNumber = -1;
@@ -275,7 +270,7 @@ public class AdminScreen implements Table{
                 try {
 
                     columnNumber = Integer.parseInt(console.readLine("Enter the Value to be changed (0 - 10) : "));
-                    if(columnNumber > 0 && columnNumber < 11)
+                    if(columnNumber > 0 && columnNumber < 9)
                     break;
                     else{
                         System.out.println("Invalid Number (Press Enter): ");
@@ -316,8 +311,6 @@ public class AdminScreen implements Table{
         }
 
     }
-
-
 
     private void removeVehicle() {
 
@@ -368,14 +361,12 @@ public class AdminScreen implements Table{
         }
     }
 
-
-
     public void searchVehicle(){
 
         System.out.println();
 
-        System.out.println("1. Search By Name: ");
-        System.out.println("2. Search by NumberPlate: ");
+        System.out.println("1. Search By Name        : ");
+        System.out.println("2. Search by NumberPlate : ");
 
         
         int loopLimiter = 0;
@@ -431,14 +422,13 @@ public class AdminScreen implements Table{
         }
         
     }
-    
-    
+      
     public void sortVehicles(){
 
         System.out.println();
     
-        System.out.println("1. Sort By Name: ");
-        System.out.println("2. Sort by NumberPlate: ");
+        System.out.println("1. Sort By Name        : ");
+        System.out.println("2. Sort by NumberPlate : ");
     
         
         int loopLimiter = 0;

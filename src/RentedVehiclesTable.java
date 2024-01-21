@@ -37,15 +37,15 @@ public class RentedVehiclesTable implements Table{
                 boolean printResult = displayTable(rentedVehicles);
 
                 if(!printResult){
+                    console.readLine("No vehicles currently rented  ");
                     clearScreen();
-                    console.readLine("Something went wrong Press Enter  ");
-                    continue;
+                    break;
                 }
                 
 
                 System.out.println();
                 System.out.println("1. Calculate Fine Amount for Returned Vehicle (F/f) : ");
-                System.out.println("2. Exit to MainMenu (M/m) : ");
+                System.out.println("2. Exit to MainMenu (M/m)                           : ");
                 System.out.println();
 
                 char choice = 'm';
@@ -105,9 +105,9 @@ public class RentedVehiclesTable implements Table{
                                 damageLevel = damage.equals("m") ? 2 : damageLevel;
                                 damageLevel = damage.equals("h") ? 3 : damageLevel;
     
-                                distanceTravelled = Integer.parseInt(console.readLine("Enter the distance for the current trip : "));
+                                distanceTravelled = Integer.parseInt(console.readLine("Enter the distance for the current trip           : "));
     
-                                String check = console.readLine("Are you sure about the details ? (y/n) : ");
+                                String check = console.readLine("Are you sure about the details ? (y/n)            : ");
     
                                 if(check.equals("y")){
                                     boolean updateDamageLevel = dbConnector.excecuteUpdate(rentedVehiclesTableName, "damage_level = "+damageLevel+", "+"distance_travelled = "+distanceTravelled+", "+"rented_returned = 2", "v_id = '"+vehicleId+"' AND rented_returned != 3");
