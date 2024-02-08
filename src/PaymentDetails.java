@@ -107,9 +107,10 @@ public class PaymentDetails implements Table{
                                 }
 
                                 int amountPending = 0;
-                                int paymentStatus = 0;
+                                // int paymentStatus = 0;
 
-                                paymentStatus = Integer.parseInt(checkPaymentId.getString(2));
+                                // paymentStatus = Integer.parseInt(checkPaymentId.getString(2));
+                                Integer.parseInt(checkPaymentId.getString(2));
                                 amountPending = Integer.parseInt(checkPaymentId.getString(4));
 
                                 dbConnector.excecuteUpdate(paymentDetailTableName, "amount_pending = 0", "payment_id = "+paymentId);

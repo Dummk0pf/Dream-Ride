@@ -175,11 +175,11 @@ public class AdminScreen implements Table{
 
         System.out.println("Adding a Vehicle :) ");
         
-        StringBuilder vehicleInfo = new StringBuilder();
         
         int loopLimiter = 0;
         
         while(loopLimiter < LOOP_MAX_LIMIT){
+            StringBuilder vehicleInfo = new StringBuilder();
             
             vehicleInfo.append("(");
             
@@ -414,7 +414,6 @@ public class AdminScreen implements Table{
                 break;
 
             } catch (Exception e) {
-                e.printStackTrace();
                 clearLine(1);
                 loopLimiter++;
             }

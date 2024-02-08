@@ -192,8 +192,7 @@ public class BorrowerCart implements Table{
             System.out.println("Bike Rent             : "+bikeRent);
             System.out.println("Bike Security Deposit : "+bikeSecurityDeposit);
         }
-
-        System.out.println("Total Rent: "+(carRent + bikeRent));
+        System.out.println("Total Rent            : "+(carRent + bikeRent));
         System.out.println("Total Security Deposit: "+(carSecurityDeposit + bikeSecurityDeposit));
 
         System.out.println();

@@ -205,7 +205,7 @@ public class BorrowerScreen implements Screen{
             // Phone Number 
             
             try {
-                b_phn_number = console.readLine("Enter your Phone Number (10 Characters Max) : ");
+                b_phn_number = console.readLine("Enter your Phone Number (10 Characters) : ");
                 if(b_phn_number.length() != 10){
                     console.readLine("Sorry Your Phone Number is invalid :( (Press Enter) ");
                     clearLine(7);
