@@ -1,6 +1,6 @@
-## Getting Started
+## Project Description
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+This is a project to simulate a rental business, it contains interfaces for both admin and users, This is a project done to apply OOP Concepts
 
 ## Folder Structure
 
@@ -9,10 +9,17 @@ The workspace contains two folders by default, where:
 - `src`: the folder to maintain sources
 - `lib`: the folder to maintain dependencies
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+_Screen.java_ -> This is an interface for the admin and the borrower Screens
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+_AdminScreen.java_ -> This is the file that focuses on the admin side interface
 
-## Dependency Management
+_BorrowerScreen.java_ -> This is the file that focuses on the borrower interface, the ability to add vehicles to the cart and view all the available vehicles
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+_SQLInterface.java_ -> This is an interface between the database and the business logic, used to send SQL commands and recieve Data from the database
+
+_Table.java_ -> This is the interface for displaying all the result tables
+All the files with table in their names have similar methods and properties describing their names
+
+_PaymentDetails.java_ -> This is the file that handles the payments between the admin and borrower
+
+_Main.java_ -> This is driver code for the application and seperates the admin and borrower sides
